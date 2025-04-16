@@ -20,14 +20,14 @@ export default function Bookity() {
 
             <TouchableOpacity style={bStyles.loginButton} onPress={() => {
                 console.log('Sign in pressed');
-                router.push('/dashboard');
+                router.push('./(tabs)/dashboard');
             }}>
                 <Text style={bStyles.loginButtonText}>Sign in</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={bStyles.loginButton} onPress={() => {
                 console.log('Sign in with Google pressed')
-                router.push('/dashboard');
+                router.push('/(tabs)/1_dashboard');
             }}>
                 <Text style={bStyles.loginButtonText}>Sign in with Google</Text>
             </TouchableOpacity>
@@ -57,12 +57,12 @@ const bStyles = StyleSheet.create({
         borderRadius: 12,
         paddingLeft: 10,
         backgroundColor: '#fff',
-        marginBottom: 15
+        marginBottom: 10
     },
     forgotContainer: {
         width: 300,
         alignItems: 'flex-end',
-        marginBottom: 15
+        marginBottom: 10
     },
     forget: {
         textDecorationLine: 'underline',
@@ -81,7 +81,7 @@ const bStyles = StyleSheet.create({
         marginBottom: 10
     },
     logo:{
-        height: 320,
+        height: 290,
         resizeMode: 'contain'
     },
     loginButton: {
@@ -96,7 +96,7 @@ const bStyles = StyleSheet.create({
         shadowOpacity: 0.15,
         shadowRadius: 4,
         elevation: 3,
-        marginBottom: 15
+        marginBottom: 10
 
     },
     loginButtonText: {
