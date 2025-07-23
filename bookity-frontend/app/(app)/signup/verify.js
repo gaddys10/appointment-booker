@@ -1,20 +1,27 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, Switch, TouchableOpacity } from 'react-native';
 import { Dimensions } from 'react-native';
-import { Ionicons } from '@expo/vector-icons'; // ✅ ADD THIS
-import { useRouter } from 'expo-router'; // ✅ ADD THIS
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter, useLocalSearchParams } from 'expo-router'; 
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
 export default function Verify() {
     const router = useRouter(); // ✅ Create router object
+    const params = useLocalSearchParams(); // ✅ Get the params from the URL
 
-    
     const [code, setCode] = useState(['', '', '', '', '', '']);
 
+
+    // Create a ref to store the input elements
+    // This will allow us to focus on the next input when the user types a digit
     const inputs = useRef([]);
 
+    // Create a function to handle the change in the input fields
+    // When the user types a digit, we update the code state and focus on the next input
+    // If the user deletes a digit, we focus on the previous input
+    // We also check if all 6 digits are filled and if so, we submit the form
     const handleChange = (text, index) => {
         const newCode = [...code];
         newCode[index] = text;
@@ -24,20 +31,47 @@ export default function Verify() {
             inputs.current[index + 1].focus();
         }
     };
-
+    
+    // Create a function to handle the key press event
     const handleKeyPress = ({ nativeEvent }, index) => {
         if (nativeEvent.key === 'Backspace' && code[index] === '' && index > 0) {
             inputs.current[index - 1].focus();
         }
     };
 
+    // rehydrate your formData
+    const formData = {
+        email:       params.email,
+        phone:       params.phone,
+        password:    params.password,
+        offersServices: params.isProvider === 'true',
+    };
+
      // ✅ Check if all 6 digits are filled
     useEffect(() => {
         const allFilled = code.every(digit => digit !== '');
-        if (allFilled) {
+        if (!allFilled) return;
+        const submitSignUp = async () => {
+            // Create account
+            try {
+                const res = await fetch('http://192.168.0.2:3000/api/auth/sign-up', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email:  formData.email,
+                        phone: formData.phone,
+                        password: formData.password,
+                        isProvider: formData.offersServices
+                    })
+                });
+                router.push('./verification-complete');
+            } catch (error) {
+                console.error('Error creating account:', error);
+            }
+        };
             // ✅ Navigate to verification-complete page
-            router.push('./verification-complete');
-        }
+            
+        submitSignUp();
     }, [code]);
 
     return (

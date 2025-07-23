@@ -43,6 +43,7 @@ export default function SignUp() {
         }
 
         try {
+            // Send a POST request to the server to generate a verification code
             const res = await fetch('http://192.168.0.2:3000/api/auth/request-code', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -55,9 +56,22 @@ export default function SignUp() {
         
             const data = await res.json();
 
+            // Check if the response is ok
+            console.log('Verification code Post Response:', data);
             if (!res.ok) throw new Error(data.error);
 
-            router.push('./verify');
+            // If the response is ok, navigate to the verification screen
+            // Pass the email, phone, and password to the verification screen
+            router.push({
+                pathname: './verify',
+                params: {
+                    email: formData.email,
+                    phone: formData.phone,
+                    password: formData.password,
+                    isProvider: formData.offersServices ? 'true' : 'false',
+                },
+            })
+            
         } catch (err) {
             Alert.alert('Signup Error', err.message);
         }
