@@ -3,6 +3,7 @@ import { View, Text, TextInput, Button, StyleSheet, Alert, Switch, TouchableOpac
 import { Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; // ✅ ADD THIS
 import { useRouter } from 'expo-router'; // ✅ ADD THIS
+import { API_BASE } from '../../../services/config'; 
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -44,10 +45,11 @@ export default function SignUp() {
 
         try {
             // Send a POST request to the server to generate a verification code
-            const res = await fetch('http://192.168.0.2:3000/api/auth/request-code', {
+            const res = await fetch(`${API_BASE}/api/auth/request-code`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                    phone: formData.phone,
                     email: formData.email,
                     password: formData.password,
                     isProvider: formData.offersServices
