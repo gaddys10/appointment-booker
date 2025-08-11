@@ -3,6 +3,8 @@ import { View, Text, TextInput, Button, StyleSheet, Alert, Switch, TouchableOpac
 import { Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router'; 
+import { API_BASE } from '../../../services/config'; 
+
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -54,7 +56,7 @@ export default function Verify() {
         const submitSignUp = async () => {
             // Create account
             try {
-                const res = await fetch('http://192.168.0.2:3000/api/auth/sign-up', {
+                const res = await fetch(`${API_BASE}/api/auth/sign-up`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
