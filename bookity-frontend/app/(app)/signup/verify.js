@@ -53,22 +53,34 @@ export default function Verify() {
     useEffect(() => {
         const allFilled = code.every(digit => digit !== '');
         if (!allFilled) return;
+
+        const otp = code.join('');
         const submitSignUp = async () => {
             // Create account
             try {
-                const res = await fetch(`${API_BASE}/api/auth/sign-up`, {
+                const res = await fetch(`${API_BASE}/api/auth/signup`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         email:  formData.email,
                         phone: formData.phone,
                         password: formData.password,
-                        isProvider: formData.offersServices
+                        isProvider: formData.offersServices,
+                        code: otp
                     })
                 });
+                const data = await res.json();
+                if (!res.ok) {
+                    console.log('Signup failed:', res.status, data);
+                    Alert.alert('Signup failed', data?.error || 'Please try again.');
+                    return; // don't navigate
+                }
+                console.log('User created:', data); // ideally includes userId or token
+
                 router.push('./verification-complete');
             } catch (error) {
                 console.error('Error creating account:', error);
+                Alert.alert('Network error', 'Please try again.');
             }
         };
             // ✅ Navigate to verification-complete page
