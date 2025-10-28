@@ -15,6 +15,8 @@ export default function Verify() {
 
     const [code, setCode] = useState(['', '', '', '', '', '']);
 
+    const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
+    const LOCAL_BASE = 'http://localhost:3000';
 
     // Create a ref to store the input elements
     // This will allow us to focus on the next input when the user types a digit
@@ -58,7 +60,7 @@ export default function Verify() {
         const submitSignUp = async () => {
             // Create account
             try {
-                const res = await fetch(`${API_BASE}/api/auth/signup`, {
+                const res = await fetch(`${LOCAL_BASE}/api/auth/signup`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

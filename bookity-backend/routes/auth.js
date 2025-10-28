@@ -2,12 +2,15 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const User = require('../models/User'); // make sure this exists
+const { signAccess, signRefresh } = require('../utils/token');
 
 const pendingVerifications = new Map();
 
 // Mock user creation
 router.post('/signup', async (req, res) => {
     const { email, phone, password, isProvider } = req.body;
+
+    console.log('➡️  POST /signup hit', { email, isProvider }); 
 
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -21,9 +24,12 @@ router.post('/signup', async (req, res) => {
             createdAt: new Date()
         };
 
-    await User.create(user); // uncomment when model exists
-        res.status(201).json({ message: 'User created (mock)', user });
+        await User.create(user); 
+
+        console.log('✅ User created: ', { email, isProvider });
+        res.status(201).json({ message: 'User created: ', user });
     } catch (err) {
+        console.error('❌ Signup error:', err); 
         res.status(500).json({ error: 'Signup error' });
     }
 });
@@ -55,5 +61,50 @@ router.post('/request-code', (req, res) => {
     // the response that returns upon request 200 success
     res.status(200).json({ message: 'Verification code sent' });
 });
+
+router.post('/login', async (req, res) => {
+
+    // extract email, phone, and password from request body
+    const { email, phone, password } = req.body;
+
+    // validate that password and either email or phone is provided
+    if (!password || (!email && !phone))
+        return res.status(400).json({ error: 'Missing credentials' });
+
+    // find the user by email or phone
+    const query = email ? { email: email.toLowerCase().trim() } : { phone };
+    const user = await User.findOne(query);
+
+    // Generic error to avoid account enumeration
+    if (!user) return res.status(401).json({ error: 'Invalid credentials' });
+
+    // (Optional) require verification first
+    // if (!user.isVerified) return res.status(401).json({ error: 'Invalid credentials' });
+
+    // compare the provided password with the stored hash
+    const ok = await bcrypt.compare(password, user.passwordHash || '');
+
+    // Generic error to avoid account enumeration
+    if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
+
+    // Generate JWT tokens
+    // Generate access token
+    const access = signAccess({ uid: user._id, role: user.isProvider ? 'provider' : 'customer' });
+
+    // Generate refresh token
+    const refresh = signRefresh({ uid: user._id, v: user.tokenVersion || 0 });
+
+    // If you’re building a web app, you might set cookies.
+    // For React Native, it’s easier to RETURN tokens in JSON and store in SecureStore.
+    // If you also want cookies for web, uncomment below:
+    // res.cookie('access_token', access, { httpOnly: true, secure: true, sameSite: 'lax', maxAge: 1000*Number(process.env.ACCESS_TTL) });
+    // res.cookie('refresh_token', refresh, { httpOnly: true, secure: true, sameSite: 'lax', maxAge: 1000*Number(process.env.REFRESH_TTL) });
+
+    res.status(200).json({
+        user: { id: user._id, email: user.email, isProvider: user.isProvider },
+        tokens: { access, refresh }
+    });
+});
+
 
 module.exports = router; // ✅ THIS LINE IS MANDATORY
