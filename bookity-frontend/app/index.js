@@ -81,18 +81,16 @@ export default function Bookity() {
 
             {!!error && <Text style={{ color: 'crimson', marginBottom: 8 }}>{error}</Text>}
 
-            <TouchableOpacity onPress={() => console.log('Forgot password? pressed')} style={bStyles.forgotContainer}>
+            <TouchableOpacity 
+                onPress={() => {
+                    console.log('Forgot password? pressed')
+                    router.push('./(app)/forgot/forgotPW')
+                }} 
+                    style={bStyles.forgotContainer}
+            >
                 <Text style={bStyles.forget}>Forget Password?</Text>
             </TouchableOpacity>
 
-            {/* <TouchableOpacity style={bStyles.loginButton} onPress={() => {
-                    console.log('Sign in pressed');
-
-                    // Authentication logic here
-
-                    router.push('./(tabs)/dashboard');
-                }}
-            > */}
             <TouchableOpacity style={bStyles.loginButton} onPress={handleSignIn}>
                 <Text style={bStyles.loginButtonText}>Sign in</Text>
             </TouchableOpacity>

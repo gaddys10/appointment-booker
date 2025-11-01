@@ -60,6 +60,42 @@ router.post('/request-code', (req, res) => {
 
     // the response that returns upon request 200 success
     res.status(200).json({ message: 'Verification code sent' });
+    res.status(404).json({ error: 'request unsucessful' });
+});
+
+router.post('/forgot-password', async (req, res) => {
+    const { email, phone } = req.body;
+    var found = false;
+
+    // validate that either email or phone is provided
+    if (!email && !phone) return res.status(400).json({ error: 'Email or phone number required' });
+
+    // find the user by email or phone
+    const userEmail = email ? await User.findOne({ email: email.toLowerCase().trim() }) : null;
+
+    const userPhone = phone ? await User.findOne({ phone: phone.trim() }) : null;
+
+    // set user to the found information
+    if (userEmail) {
+        found = true;
+        var user = userEmail;
+    }
+
+    if (userPhone) {
+        found = true;
+        var user = userPhone;
+    }
+
+    // if the user is found, proceed with password reset process
+    if (found) {
+
+        // Here you would generate a reset token and send an email
+        // For simplicity, we just log it
+        console.log(`🔑 Password reset requested for ${email}`);
+
+        res.status(200).json({ message: 'A reset link has been sent.' });
+    }
+
 });
 
 router.post('/login', async (req, res) => {
