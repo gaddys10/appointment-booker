@@ -56,9 +56,10 @@ export default function Verify() {
         const allFilled = code.every(digit => digit !== '');
         if (!allFilled) return;
 
+        console.log(params.securityCode);
         const otp = code.join('');
 
-        if (code !== params.securityCode){
+        if (otp !== params.securityCode){
             Alert.alert('Invalid code', 'The verification code you entered is incorrect. Please try again.');
             //clear code inputs
             setCode(['', '', '', '', '', '']);
@@ -69,6 +70,7 @@ export default function Verify() {
         const submitSignUp = async () => {
             // Create account
             try {
+                console.log("otp:", otp);
                 const res = await fetch(`${LOCAL_BASE}/api/auth/sign-up`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },

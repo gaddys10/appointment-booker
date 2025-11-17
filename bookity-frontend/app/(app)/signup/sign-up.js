@@ -71,7 +71,7 @@ export default function SignUp() {
                     phone: formData.phone,
                     password: formData.password,
                     isProvider: formData.offersServices ? 'true' : 'false',
-                    securityCode: data
+                    securityCode: data.securityCode
                 },
             })
             

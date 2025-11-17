@@ -104,7 +104,7 @@ router.post('/sign-up/request-code', (req, res) => {
     console.log(`📬 Code sent to ${id}: ${code}`);
 
     // the response that returns upon request 200 success
-    res.status(200).json({ message: 'Verification code sent' });
+    res.status(200).json({ message: code });
     // res.status(404).json({ error: 'request unsucessful' });
 });
 
