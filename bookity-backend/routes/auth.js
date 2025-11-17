@@ -5,100 +5,9 @@ const User = require('../models/User'); // make sure this exists
 const { signAccess, signRefresh } = require('../utils/token');
 
 const pendingVerifications = new Map();
+const pendingPwResets = new Map();
 
-// Mock user creation
-router.post('/signup', async (req, res) => {
-    const { email, phone, password, isProvider } = req.body;
-
-    console.log('➡️  POST /signup hit', { email, isProvider }); 
-
-    try {
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        const user = {
-            email,
-            phone,
-            passwordHash: hashedPassword,
-            isProvider,
-            isVerified: false,
-            createdAt: new Date()
-        };
-
-        await User.create(user); 
-
-        console.log('✅ User created: ', { email, isProvider });
-        res.status(201).json({ message: 'User created: ', user });
-    } catch (err) {
-        console.error('❌ Signup error:', err); 
-        res.status(500).json({ error: 'Signup error' });
-    }
-});
-
-// Mock verification code request
-router.post('/request-code', (req, res) => {
-    // get user information from the request body
-    const { email, phone, password, isProvider } = req.body;
-
-    // check if email or phone is provided
-    if (!email && !phone) return res.status(400).json({ error: 'Email or phone required' });
-
-    // get the user ID from email or phone
-    const id = email || phone;
-
-    // Generate a random 6-digit code
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-
-    // Store the code and user data in pendingVerifications
-    // with email or phone as the key
-    pendingVerifications.set(id, {
-        code,
-        formData: { email, phone, password, isProvider }
-    });
-
-    // Simulate sending the code via SMS or Email
-    console.log(`📬 Code sent to ${id}: ${code}`);
-
-    // the response that returns upon request 200 success
-    res.status(200).json({ message: 'Verification code sent' });
-    res.status(404).json({ error: 'request unsucessful' });
-});
-
-router.post('/forgot-password', async (req, res) => {
-    const { email, phone } = req.body;
-    var found = false;
-
-    // validate that either email or phone is provided
-    if (!email && !phone) return res.status(400).json({ error: 'Email or phone number required' });
-
-    // find the user by email or phone
-    const userEmail = email ? await User.findOne({ email: email.toLowerCase().trim() }) : null;
-
-    const userPhone = phone ? await User.findOne({ phone: phone.trim() }) : null;
-
-    // set user to the found information
-    if (userEmail) {
-        found = true;
-        var user = userEmail;
-    }
-
-    if (userPhone) {
-        found = true;
-        var user = userPhone;
-    }
-
-    // if the user is found, proceed with password reset process
-    if (found) {
-
-        // Here you would generate a reset token and send an email
-        // For simplicity, we just log it
-        console.log(`🔑 Password reset requested for ${email}`);
-
-        res.status(200).json({ message: 'A reset link has been sent.' });
-    }
-
-});
-
-router.post('/login', async (req, res) => {
+router.post('/login', async (req, res) => { 
 
     // extract email, phone, and password from request body
     const { email, phone, password } = req.body;
@@ -141,6 +50,147 @@ router.post('/login', async (req, res) => {
         tokens: { access, refresh }
     });
 });
+
+// Mock user creation
+router.post('/sign-up', async (req, res) => {
+
+    const { email, phone, password, isProvider } = req.body;
+    console.log('➡️  POST /sign-up hit', { email, isProvider }); 
+
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const user = {
+            email,
+            phone,
+            passwordHash: hashedPassword,
+            isProvider,
+            isVerified: false,
+            createdAt: new Date()
+        };
+
+        await User.create(user); 
+
+        console.log('✅ User created: ', { email, isProvider });
+        res.status(201).json({ message: 'User created: ', user });
+    } catch (err) {
+        console.error('❌ Signup error:', err); 
+        res.status(500).json({ error: 'Signup error' });
+    }
+});
+
+// Mock verification code request
+router.post('/sign-up/request-code', (req, res) => {
+    // get user information from the request body
+    const { email, phone, password, isProvider } = req.body;
+
+    // check if email or phone is provided
+    if (!email && !phone) return res.status(400).json({ error: 'Email or phone required' });
+
+    // get the user ID from email or phone
+    const id = email || phone;
+
+    // Generate a random 6-digit code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Store the code and user data in pendingVerifications
+    // with email or phone as the key
+    pendingVerifications.set(id, {
+        code,
+        formData: { email, phone, password, isProvider }
+    });
+
+    // Simulate sending the code via SMS or Email
+    console.log(`📬 Code sent to ${id}: ${code}`);
+
+    // the response that returns upon request 200 success
+    res.status(200).json({ message: 'Verification code sent' });
+    // res.status(404).json({ error: 'request unsucessful' });
+});
+
+router.post('/forgot-password/reset-password', async (req, res) => {
+    const { identifier, newPassword } = req.body;
+    var found = false;
+
+    // validate that either email or phone is provided
+    if (!identifier || !newPassword) return res.status(400).json({ error: 'Identifier and new password required' });
+
+    // find the user by email or phone
+    const userEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier) ? await User.findOne({ email: identifier.toLowerCase().trim() }) : null;
+    const userPhone = /^\+?[1-9]\d{1,14}$/.test(identifier) ? await User.findOne({ phone: identifier.trim() }) : null;
+
+    // set user to the found information
+    if (userEmail) {
+        found = true;
+        var user = userEmail;
+    }
+    if (userPhone) {
+        found = true;
+        var user = userPhone;
+    }
+
+    // if the user is found, proceed with password reset process
+    if (found) {
+        try {
+            // hash the new password
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+            // update the user's password in the database
+            user.passwordHash = hashedPassword;
+            await user.save();
+            
+            console.log(`✅ Password reset successful for ${user}`);
+            return res.status(200).json({ message: 'Password reset successful' });
+        } catch (error) {
+            console.error('❌ Error resetting password:', error);
+            return res.status(500).json({ error: 'Error resetting password' });
+        }
+    } else {
+        return res.status(404).json({ error: 'User not found' });
+    }
+});
+
+router.post('/forgot-password/request-code', async (req, res) => {
+    const { email, phone } = req.body;
+    var found = false;
+
+    // validate that either email or phone is provided
+    if (!email && !phone) return res.status(400).json({ error: 'Email or phone number required' });
+
+    // find the user by email or phone
+    const userEmail = email ? await User.findOne({ email: email.toLowerCase().trim() }) : null;
+    const userPhone = phone ? await User.findOne({ phone: phone.trim() }) : null;
+
+    // set user to the found information
+    if (userEmail) {
+        found = true;
+        var user = userEmail;
+    }
+    if (userPhone) {
+        found = true;
+        var user = userPhone;
+    }
+
+    // if the user is found, proceed with password reset process
+    if (found) {
+        // Here you would generate a reset token and send an email
+        // For simplicity, we just log it
+
+        // Generate a random 6-digit code
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+        console.log(`🔑 Password reset requested for ${user}`);
+        
+        // Simulate sending the code via SMS or Email
+        console.log(`📬 Code sent to ${user.email ? user.email : user.phone}: ${code}`);
+
+        return res.status(200).json({ message: code }); // <- single response
+        // res.status(404).json({ error: 'password reset request unsucessful' });
+    }
+
+});
+
+
 
 
 module.exports = router; // ✅ THIS LINE IS MANDATORY

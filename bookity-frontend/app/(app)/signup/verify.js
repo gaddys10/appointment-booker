@@ -57,10 +57,19 @@ export default function Verify() {
         if (!allFilled) return;
 
         const otp = code.join('');
+
+        if (code !== params.securityCode){
+            Alert.alert('Invalid code', 'The verification code you entered is incorrect. Please try again.');
+            //clear code inputs
+            setCode(['', '', '', '', '', '']);
+            inputs.current[0].focus();
+            return;
+        }
+
         const submitSignUp = async () => {
             // Create account
             try {
-                const res = await fetch(`${LOCAL_BASE}/api/auth/signup`, {
+                const res = await fetch(`${LOCAL_BASE}/api/auth/sign-up`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

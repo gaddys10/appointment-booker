@@ -45,7 +45,7 @@ export default function SignUp() {
 
         try {
             // Send a POST request to the server to generate a verification code
-            const res = await fetch(`${API_BASE}/api/auth/request-code`, {
+            const res = await fetch(`${API_BASE}/api/auth/sign-up/request-code`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -71,6 +71,7 @@ export default function SignUp() {
                     phone: formData.phone,
                     password: formData.password,
                     isProvider: formData.offersServices ? 'true' : 'false',
+                    securityCode: data
                 },
             })
             
@@ -137,7 +138,6 @@ export default function SignUp() {
                 <TouchableOpacity style={styles.loginButton} onPress={() => {
                     console.log('Verify Account pressed')
                     handleSubmit();
-                    // router.push('./verify')
                 }}>
                     <Text style={styles.loginButtonText}>Verify Account </Text>
                 </TouchableOpacity>

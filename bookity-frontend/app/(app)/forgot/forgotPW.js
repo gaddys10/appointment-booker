@@ -32,32 +32,42 @@ export default function ForgotPW() {
         }
 
         try {
+
+            console.log('➡️  Requesting password reset for:', value);
             // show loading indicator
             setLoading(true);
 
             const body = isValidEmail(value) ? { email: value } : { phone: value };
-            // send request to backend to verify email/phone exists and send reset link
-            const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
+
+            // send request to backend to verify email/phone exists and generate reset code
+            const res = await fetch(`${API_BASE}/api/auth/forgot-password/request-code`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body),
             });
-
             
+            console.log('⬅️  Response status:', res.status);
             // parse response
             if (res.ok) {
-                router.push('/(app)/forgot/forgotPWCode');
-            }
+                const data = await res.json();
+                // extract code from response
+                console.log('✅ Password reset code requested successfully:', data.message);
 
-            
+                // navigate to code verification screen
+                router.push({
+                    pathname: '/(app)/forgot/forgotPWCode',
+                    params: { 
+                        identifier: value, 
+                        securityCode: data.message 
+                    } 
+                });
+            } else {
+                throw new Error();
+            }
 
             // show success message if request was successful
         } catch (e) {
-            // Same message to avoid enumeration
-            // Alert.alert(
-            //     'Check your inbox',
-            //     'If that account exists, a reset link has been sent.'
-            // );
+            
             Alert.alert(
                 'Account doesn\'t exist',
                 'There is no account associated with that email or phone number.'
