@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, ScrollView 
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons'; // ✅ ADD THIS
 import { Dimensions } from 'react-native';
-import BookingsOrganization from '../../bookings/components/bookings-organization';
+import BookingsOrganization from './components/bookings-organization';
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 

@@ -18,6 +18,10 @@ export default function Dashboard(){
                 <Text style={dStyle.advanced}>Advanced Search</Text>
             </TouchableOpacity>
 
+            <View style={dStyle.booknow}>
+                <Text> Book Appointment Now </Text>
+            </View>
+            
             <View style={dStyle.bookedWithMe}>
                 <View style={dStyle.bwmHeader}>
                     <Text style={dStyle.bwmHeaderText}>Appointments Booked with Me</Text>
@@ -35,9 +39,7 @@ export default function Dashboard(){
                 <View style={dStyle.rightSection}></View>
             </View>
 
-            <View style={dStyle.booknow}>
-                <Text> Book Appointment Now </Text>
-            </View>
+            
 
             <View style={dStyle.iBooked}>
                 <View style={dStyle.ibHeader}>

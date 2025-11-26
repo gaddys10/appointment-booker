@@ -53,6 +53,31 @@ const Services = () => {
                     >
                 </TextInput>
 
+                <Text style={styles.secondTitle}>Business Services</Text>
+                {services.map((service) => (
+                    <TouchableOpacity key={service.id} style={styles.card} onPress={() => router.push('/signup/services/edit-service')}>
+                        <View>
+                            <Text style={styles.name}>{service.name}</Text>
+                            <Text style={styles.description}>{service.description}</Text>
+                            <Text style={styles.price}>Price: ${service.price}</Text>
+                        </View>
+                        <View style={styles.selectButton}  onPress={() => router.back()}>
+                            <Ionicons name='pencil' size={24} color="black" />
+                        </View>
+                    </TouchableOpacity>
+                ))}
+                <TouchableOpacity key={service.id} style={styles.card} onPress={() => router.push('/signup/services/edit-service')}>
+                    <View>
+                        <Text style={styles.name}>${service.name}</Text>
+                        <Text style={styles.description}>${service.description}</Text>
+                        <Text style={styles.price}>Price: ${service.price}</Text>
+                    </View>
+                    <View style={styles.selectButton}  onPress={() => router.back()}>
+                        <Ionicons name='pencil' size={24} color="black" />
+                    </View>
+                </TouchableOpacity> 
+
+
                 <Text style={styles.secondTitle}>Business Hours</Text>
                 <View style={styles.dayContainer}>
                     <View style={{ flex: 1, alignItems: 'flex-start' }}>
@@ -134,19 +159,7 @@ const Services = () => {
                 
 
 
-                <Text style={styles.secondTitle}>Business Services</Text>
-                {services.map((service) => (
-                    <TouchableOpacity key={service.id} style={styles.card} onPress={() => router.push('/signup/services/edit-service')}>
-                        <View>
-                            <Text style={styles.name}>{service.name}</Text>
-                            <Text style={styles.description}>{service.description}</Text>
-                            <Text style={styles.price}>Price: ${service.price}</Text>
-                        </View>
-                        <View style={styles.selectButton}  onPress={() => router.back()}>
-                            <Ionicons name='pencil' size={24} color="black" />
-                        </View>
-                    </TouchableOpacity>
-                ))}
+                
             </ScrollView>
         </View>
     );
@@ -234,7 +247,7 @@ const styles = StyleSheet.create({
     box: {
 
         height: 40,
-        width:300,
+        width:350,
         borderWidth: 1,
         borderColor: '#ccc',
         borderRadius: 12,
@@ -249,7 +262,7 @@ const styles = StyleSheet.create({
     dbox: {
 
         height: 120,
-        width:300,
+        width:350,
         borderWidth: 1,
         borderColor: '#ccc',
         borderRadius: 12,

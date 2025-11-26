@@ -60,6 +60,7 @@ export default function SignUp() {
 
             // Check if the response is ok
             console.log('Verification code Post Response:', data);
+            console.log(data.message);
             if (!res.ok) throw new Error(data.error);
 
             // If the response is ok, navigate to the verification screen
@@ -71,7 +72,7 @@ export default function SignUp() {
                     phone: formData.phone,
                     password: formData.password,
                     isProvider: formData.offersServices ? 'true' : 'false',
-                    securityCode: data.securityCode
+                    securityCode: data.message
                 },
             })
             

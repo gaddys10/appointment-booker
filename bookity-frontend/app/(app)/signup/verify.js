@@ -11,7 +11,7 @@ const screenHeight = Dimensions.get('window').height;
 
 export default function Verify() {
     const router = useRouter(); // ✅ Create router object
-    const params = useLocalSearchParams(); // ✅ Get the params from the URL
+    const params  = useLocalSearchParams(); // ✅ Get the params from the URL
 
     const [code, setCode] = useState(['', '', '', '', '', '']);
 
@@ -56,8 +56,12 @@ export default function Verify() {
         const allFilled = code.every(digit => digit !== '');
         if (!allFilled) return;
 
-        console.log(params.securityCode);
+        console.log("Security Code: " + params.securityCode);
+        console.log(params)
+
         const otp = code.join('');
+
+                console.log("Code Entered:" + otp);
 
         if (otp !== params.securityCode){
             Alert.alert('Invalid code', 'The verification code you entered is incorrect. Please try again.');

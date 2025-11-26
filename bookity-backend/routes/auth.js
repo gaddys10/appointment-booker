@@ -124,6 +124,7 @@ router.post('/forgot-password/reset-password', async (req, res) => {
         found = true;
         var user = userEmail;
     }
+    
     if (userPhone) {
         found = true;
         var user = userPhone;
@@ -187,10 +188,6 @@ router.post('/forgot-password/request-code', async (req, res) => {
         return res.status(200).json({ message: code }); // <- single response
         // res.status(404).json({ error: 'password reset request unsucessful' });
     }
-
 });
 
-
-
-
-module.exports = router; // ✅ THIS LINE IS MANDATORY
+module.exports = router; 
