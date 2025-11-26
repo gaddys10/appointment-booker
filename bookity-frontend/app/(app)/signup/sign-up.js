@@ -3,6 +3,7 @@ import { View, Text, TextInput, Button, StyleSheet, Alert, Switch, TouchableOpac
 import { Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; // ✅ ADD THIS
 import { useRouter } from 'expo-router'; // ✅ ADD THIS
+import { API_BASE } from '../../../services/config'; 
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -10,14 +11,16 @@ const screenHeight = Dimensions.get('window').height;
 export default function SignUp() {
     const router = useRouter(); // ✅ Create router object
 
-    
+    //Create sign up form state
     const [formData, setFormData] = useState({
+        phone: '',
         email: '',
         password: '',
         confirmPassword: '',
         offersServices: false,
     });
 
+    //Create a function to handle form state on change
     const handleChange = (name, value) => {
         setFormData({
             ...formData,
@@ -25,12 +28,59 @@ export default function SignUp() {
         });
     };
 
-    const handleSubmit = () => {
+    //Create a function to handle sign up submission
+    const handleSubmit = async() => {
+
+        // Make sure email and phone are provided
+        if (!formData.email && !formData.phone) {
+            Alert.alert('Error', 'Email or phone number is required!');
+            return;
+        }
+
+        // Make sure passwords match
         if (formData.password !== formData.confirmPassword) {
             Alert.alert('Error', 'Passwords do not match!');
             return;
         }
+
+        try {
+            // Send a POST request to the server to generate a verification code
+            const res = await fetch(`${API_BASE}/api/auth/sign-up/request-code`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    phone: formData.phone,
+                    email: formData.email,
+                    password: formData.password,
+                    isProvider: formData.offersServices
+                })
+            });
+        
+            const data = await res.json();
+
+            // Check if the response is ok
+            console.log('Verification code Post Response:', data);
+            console.log(data.message);
+            if (!res.ok) throw new Error(data.error);
+
+            // If the response is ok, navigate to the verification screen
+            // Pass the email, phone, and password to the verification screen
+            router.push({
+                pathname: './verify',
+                params: {
+                    email: formData.email,
+                    phone: formData.phone,
+                    password: formData.password,
+                    isProvider: formData.offersServices ? 'true' : 'false',
+                    securityCode: data.message
+                },
+            })
+            
+        } catch (err) {
+            Alert.alert('Signup Error', err.message);
+        }
         console.log('Form submitted:', formData);
+
         // Add your form submission logic here
     };
 
@@ -40,31 +90,17 @@ export default function SignUp() {
                 <Ionicons name="arrow-back-outline" size={28} color="black" />
             </TouchableOpacity>
             <View style={styles.bodyContainer}>
+
                 <Text style={styles.title}>Sign Up</Text>
-                {/* <TextInput
-                    style={styles.input}
-                    placeholder="First Name"
-                    value={formData.email}
-                    onChangeText={(value) => handleChange('email', value)}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Last Name"
-                    value={formData.email}
-                    onChangeText={(value) => handleChange('email', value)}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                />
-                 */}
+                
                 <TextInput
                     style={styles.input}
                     placeholder="Phone Number"
-                    value={formData.email}
-                    onChangeText={(value) => handleChange('email', value)}
+                    value={formData.phone}
+                    onChangeText={(value) => handleChange('phone', value)}
                     keyboardType="email-address"
                     autoCapitalize="none"
+                    textContentType="oneTimeCode"
                 />
                 <Text style={styles.or}> or </Text>
                 <TextInput
@@ -74,12 +110,14 @@ export default function SignUp() {
                     onChangeText={(value) => handleChange('email', value)}
                     keyboardType="email-address"
                     autoCapitalize="none"
+                    textContentType="oneTimeCode"
                 />
                 <TextInput
                     style={styles.input}
                     placeholder="Password"
                     value={formData.password}
                     onChangeText={(value) => handleChange('password', value)}
+                    textContentType="oneTimeCode"
                     secureTextEntry
                 />
                 <TextInput
@@ -87,6 +125,7 @@ export default function SignUp() {
                     placeholder="Confirm Password"
                     value={formData.confirmPassword}
                     onChangeText={(value) => handleChange('confirmPassword', value)}
+                    textContentType="oneTimeCode"
                     secureTextEntry
                 />
                 <View style={styles.switchContainer}>
@@ -98,9 +137,8 @@ export default function SignUp() {
                 </View>
 
                 <TouchableOpacity style={styles.loginButton} onPress={() => {
-                    console.log('Get Started for Free pressed')
+                    console.log('Verify Account pressed')
                     handleSubmit();
-                    router.push('./verify')
                 }}>
                     <Text style={styles.loginButtonText}>Verify Account </Text>
                 </TouchableOpacity>
@@ -111,15 +149,26 @@ export default function SignUp() {
 }
 
 const styles = StyleSheet.create({
+    
+    backButton: {
+        position: 'absolute',
+        top: 20,
+        left: 20,
+        zIndex: 1,
+        height: 40,
+        width: 40,
+    },
     container: {
         flex: 1,
         padding: 20,
         backgroundColor: '#E3FAEC',
     },
     bodyContainer: {
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         alignItems: 'center',
         height: screenHeight - 250,
+        //move this to the top
+        marginTop: -110
     },
     or: {
         marginBottom: 15,

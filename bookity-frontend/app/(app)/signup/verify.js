@@ -1,20 +1,31 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, Switch, TouchableOpacity } from 'react-native';
 import { Dimensions } from 'react-native';
-import { Ionicons } from '@expo/vector-icons'; // ✅ ADD THIS
-import { useRouter } from 'expo-router'; // ✅ ADD THIS
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter, useLocalSearchParams } from 'expo-router'; 
+import { API_BASE } from '../../../services/config'; 
+
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
 export default function Verify() {
     const router = useRouter(); // ✅ Create router object
+    const params  = useLocalSearchParams(); // ✅ Get the params from the URL
 
-    
     const [code, setCode] = useState(['', '', '', '', '', '']);
 
+    const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
+    const LOCAL_BASE = 'http://localhost:3000';
+
+    // Create a ref to store the input elements
+    // This will allow us to focus on the next input when the user types a digit
     const inputs = useRef([]);
 
+    // Create a function to handle the change in the input fields
+    // When the user types a digit, we update the code state and focus on the next input
+    // If the user deletes a digit, we focus on the previous input
+    // We also check if all 6 digits are filled and if so, we submit the form
     const handleChange = (text, index) => {
         const newCode = [...code];
         newCode[index] = text;
@@ -24,20 +35,74 @@ export default function Verify() {
             inputs.current[index + 1].focus();
         }
     };
-
+    
+    // Create a function to handle the key press event
     const handleKeyPress = ({ nativeEvent }, index) => {
         if (nativeEvent.key === 'Backspace' && code[index] === '' && index > 0) {
             inputs.current[index - 1].focus();
         }
     };
 
+    // rehydrate your formData
+    const formData = {
+        email:       params.email,
+        phone:       params.phone,
+        password:    params.password,
+        offersServices: params.isProvider === 'true',
+    };
+
      // ✅ Check if all 6 digits are filled
     useEffect(() => {
         const allFilled = code.every(digit => digit !== '');
-        if (allFilled) {
-            // ✅ Navigate to verification-complete page
-            router.push('./verification-complete');
+        if (!allFilled) return;
+
+        console.log("Security Code: " + params.securityCode);
+        console.log(params)
+
+        const otp = code.join('');
+
+                console.log("Code Entered:" + otp);
+
+        if (otp !== params.securityCode){
+            Alert.alert('Invalid code', 'The verification code you entered is incorrect. Please try again.');
+            //clear code inputs
+            setCode(['', '', '', '', '', '']);
+            inputs.current[0].focus();
+            return;
         }
+
+        const submitSignUp = async () => {
+            // Create account
+            try {
+                console.log("otp:", otp);
+                const res = await fetch(`${LOCAL_BASE}/api/auth/sign-up`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email:  formData.email,
+                        phone: formData.phone,
+                        password: formData.password,
+                        isProvider: formData.offersServices,
+                        code: otp
+                    })
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    console.log('Signup failed:', res.status, data);
+                    Alert.alert('Signup failed', data?.error || 'Please try again.');
+                    return; // don't navigate
+                }
+                console.log('User created:', data); // ideally includes userId or token
+
+                router.push('./verification-complete');
+            } catch (error) {
+                console.error('Error creating account:', error);
+                Alert.alert('Network error', 'Please try again.');
+            }
+        };
+            // ✅ Navigate to verification-complete page
+            
+        submitSignUp();
     }, [code]);
 
     return (

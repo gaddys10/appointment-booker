@@ -114,6 +114,7 @@ export default function EditService(){
             paddingHorizontal: 10,
             paddingTop: 10,
             height: 50,
+            backgroundColor: '#fff'
         },
         container:{
             flex: 1,

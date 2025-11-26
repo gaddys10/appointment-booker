@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, ScrollView 
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons'; // ✅ ADD THIS
 import { Dimensions } from 'react-native';
+import BookingsOrganization from '../../bookings/components/bookings-organization';
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
@@ -24,7 +25,7 @@ export default function Organizations(){
             <Text style={orgStyle.header}>My Services</Text>
             <Text style={orgStyle.selectOrg}>Select Organization</Text>
 
-            <TouchableOpacity style={orgStyle.optionContainer} onPress={() => router.push('/signup/services/business-info')}>
+            {/* <TouchableOpacity style={orgStyle.optionContainer} onPress={() => router.push('/signup/services/business-info')}>
                 <View style={orgStyle.iconContainer}></View>
                 <View style={orgStyle.contentContainer}>
                     <Text style={orgStyle.orgOption1}>Organization 1</Text>
@@ -34,7 +35,21 @@ export default function Organizations(){
                 <View style={orgStyle.selectButton}  onPress={() => router.back()}>
                     <Ionicons name='chevron-forward' size={28} color="black" />
                 </View>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
+
+            <BookingsOrganization
+                orgName="Organization 1"
+                orgType="Business Type"
+                orgAddress="1234 Address Drive City, State, Country"
+                routerAddress="/signup/services/business-info"
+            />
+
+            <BookingsOrganization
+                orgName="Organization 2"
+                orgType="Business Type"
+                orgAddress="1234 Address Drive City, State, Country"
+                routerAddress="/signup/services/business-info"
+            />
 
             <TouchableOpacity style={orgStyle.optionContainer} onPress={() => router.push('/signup/services/business-info')}>
                 <View style={[orgStyle.iconContainer, {backgroundColor: 'blue'}]}></View>
@@ -82,8 +97,11 @@ const orgStyle = StyleSheet.create({
     },
     container:{
         flex: 1,
-        paddingHorizontal: 10,
+        // paddingHorizontal: 10,
         backgroundColor: '#E3FAEC',
+    },
+    BookingsOrganization: {
+        marginLeft: 20,
     },
     header:{
         fontSize: 24,
@@ -170,7 +188,9 @@ const orgStyle = StyleSheet.create({
         marginBottom: 10,
         paddingHorizontal: 10,
         paddingTop: 10,
-        height: 50,
+        height: 75,
+        width: screenWidth,
+        backgroundColor: '#fff'
     },
     saveButton: {
         flexDirection: 'row',
