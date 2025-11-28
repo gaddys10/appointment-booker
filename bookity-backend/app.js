@@ -8,6 +8,8 @@ const usersRoutes = require('./routes/users');
 
 const app = express();
 
+// mongosh "mongodb://localhost:27017/bookity"
+
 // Middleware
 app.use(express.json()); // for parsing application/json
 app.use(cors());

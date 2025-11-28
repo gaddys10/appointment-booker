@@ -49,6 +49,8 @@ export default function Verify() {
         phone:       params.phone,
         password:    params.password,
         offersServices: params.isProvider === 'true',
+        firstName:  params.firstName,
+        lastName:   params.lastName,
     };
 
      // ✅ Check if all 6 digits are filled
@@ -79,6 +81,8 @@ export default function Verify() {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
+                        firstName: formData.firstName,
+                        lastName: formData.lastName,
                         email:  formData.email,
                         phone: formData.phone,
                         password: formData.password,
@@ -94,7 +98,16 @@ export default function Verify() {
                 }
                 console.log('User created:', data); // ideally includes userId or token
 
-                router.push('./verification-complete');
+                router.push({
+                    pathname: './verification-complete',
+                params: {
+                        email: formData.email,
+                        phone: formData.phone,
+                        firstName: formData.firstName,
+                        lastName: formData.lastName,
+                        isProvider: formData.offersServices ? 'true' : 'false',
+                    },
+                });
             } catch (error) {
                 console.error('Error creating account:', error);
                 Alert.alert('Network error', 'Please try again.');
@@ -110,23 +123,24 @@ export default function Verify() {
             <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
                 <Ionicons name="arrow-back-outline" size={28} color="black" />
             </TouchableOpacity>
+            <Text style={styles.label}>Alright {formData.firstName}, one last step</Text>
             <View style={styles.bodyContainer}>
                 <Text style={styles.title}>Verify Account</Text>
                 <Text> A code was sent to phone number or email and expires in 15 minutes</Text>
                 <View style={styles.twofaContainer}>
                     {code.map((digit, index) => (
-                            <TextInput
-                                key={index}
-                                ref={ref => inputs.current[index] = ref}
-                                style={styles.twofa}
-                                keyboardType="number-pad"
-                                maxLength={1}
-                                secureTextEntry={true}
-                                onChangeText={text => handleChange(text, index)}
-                                onKeyPress={(e) => handleKeyPress(e, index)}
-                                value={digit}
-                            />
-                        ))}
+                        <TextInput
+                            key={index}
+                            ref={ref => inputs.current[index] = ref}
+                            style={styles.twofa}
+                            keyboardType="number-pad"
+                            maxLength={1}
+                            secureTextEntry={true}
+                            onChangeText={text => handleChange(text, index)}
+                            onKeyPress={(e) => handleKeyPress(e, index)}
+                            value={digit}
+                        />
+                    ))}
                 </View>
             </View>
         </View>
@@ -142,10 +156,16 @@ const styles = StyleSheet.create({
     bodyContainer: {
         justifyContent: 'center',
         alignItems: 'center',
-        height: screenHeight - 250,
+        height: screenHeight - 420,
     },
     vendorText: {
         marginRight: 10,
+    },
+    label: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginTop: 60,
+        textAlign: 'center',
     },
     loginButton: {
         backgroundColor: '#5ED2AA', // Bookity blue?

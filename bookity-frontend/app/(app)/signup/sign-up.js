@@ -15,6 +15,8 @@ export default function SignUp() {
     const [formData, setFormData] = useState({
         phone: '',
         email: '',
+        firstName: '',
+        lastName: '',
         password: '',
         confirmPassword: '',
         offersServices: false,
@@ -52,7 +54,9 @@ export default function SignUp() {
                     phone: formData.phone,
                     email: formData.email,
                     password: formData.password,
-                    isProvider: formData.offersServices
+                    isProvider: formData.offersServices,
+                    firstName: formData.firstName,
+                    lastName: formData.lastName,
                 })
             });
         
@@ -72,7 +76,9 @@ export default function SignUp() {
                     phone: formData.phone,
                     password: formData.password,
                     isProvider: formData.offersServices ? 'true' : 'false',
-                    securityCode: data.message
+                    securityCode: data.message,
+                    firstName: formData.firstName,
+                    lastName: formData.lastName,   
                 },
             })
             
@@ -92,7 +98,37 @@ export default function SignUp() {
             <View style={styles.bodyContainer}>
 
                 <Text style={styles.title}>Sign Up</Text>
-                
+
+                <Text style={styles.subtitle}>Enter Name</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="First Name*"
+                    value={formData.firstName}
+                    onChangeText={(value) => handleChange('firstName', value)}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    textContentType="oneTimeCode"
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Last Name*"
+                    value={formData.lastName}
+                    onChangeText={(value) => handleChange('lastName', value)}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    textContentType="oneTimeCode"
+                />
+
+                <Text style={styles.subtitle}>Enter Email or Phone Number</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Email*"
+                    value={formData.email}
+                    onChangeText={(value) => handleChange('email', value)}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    textContentType="oneTimeCode"
+                />
                 <TextInput
                     style={styles.input}
                     placeholder="Phone Number"
@@ -102,19 +138,11 @@ export default function SignUp() {
                     autoCapitalize="none"
                     textContentType="oneTimeCode"
                 />
-                <Text style={styles.or}> or </Text>
+                
+                <Text style={styles.subtitle}>Enter Password</Text>
                 <TextInput
                     style={styles.input}
-                    placeholder="Email"
-                    value={formData.email}
-                    onChangeText={(value) => handleChange('email', value)}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    textContentType="oneTimeCode"
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Password"
+                    placeholder="Password*"
                     value={formData.password}
                     onChangeText={(value) => handleChange('password', value)}
                     textContentType="oneTimeCode"
@@ -122,12 +150,13 @@ export default function SignUp() {
                 />
                 <TextInput
                     style={styles.input}
-                    placeholder="Confirm Password"
+                    placeholder="Reenter Password*"
                     value={formData.confirmPassword}
                     onChangeText={(value) => handleChange('confirmPassword', value)}
                     textContentType="oneTimeCode"
                     secureTextEntry
                 />
+
                 <View style={styles.switchContainer}>
                     <Text style={styles.vendorText}>I want to offer services and accept bookings </Text>
                     <Switch
@@ -158,11 +187,6 @@ const styles = StyleSheet.create({
         height: 40,
         width: 40,
     },
-    container: {
-        flex: 1,
-        padding: 20,
-        backgroundColor: '#E3FAEC',
-    },
     bodyContainer: {
         justifyContent: 'flex-start',
         alignItems: 'center',
@@ -170,13 +194,12 @@ const styles = StyleSheet.create({
         //move this to the top
         marginTop: -110
     },
-    or: {
-        marginBottom: 15,
+    container: {
+        flex: 1,
+        padding: 20,
+        backgroundColor: '#E3FAEC',
     },
-    vendorText: {
-        marginRight: 10,
-    },
-    loginButton: {
+        loginButton: {
         backgroundColor: '#5ED2AA', // Bookity blue?
         paddingVertical: 14,
         paddingHorizontal: 30,
@@ -189,19 +212,6 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 3,
         marginTop: 15
-
-    },
-    loginButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: '600',
-    },
-    title: {
-        fontSize: 36,
-        fontWeight: 'bold',
-        marginBottom: 30,
-        textAlign: 'center',
-        marginTop: 140
     },
     input: {
         borderWidth: 1,
@@ -214,10 +224,35 @@ const styles = StyleSheet.create({
         width: screenWidth - 40,
         height: 40
     },
+    loginButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '600',
+    },
+    or: {
+        marginBottom: 15,
+    },
+    subtitle: {
+        alignSelf: 'flex-start',
+        marginBottom: 7,
+        fontSize: 16,
+        fontWeight: '500',
+        marginTop: 15
+    },
     switchContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         marginVertical: 10,
+    },
+    title: {
+        fontSize: 36,
+        fontWeight: 'bold',
+        marginBottom: 30,
+        textAlign: 'center',
+        marginTop: 140
+    },
+    vendorText: {
+        marginRight: 10,
     },
 });

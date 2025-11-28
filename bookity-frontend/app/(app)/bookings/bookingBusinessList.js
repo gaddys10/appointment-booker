@@ -7,14 +7,14 @@ import BookingsOrganization from './components/bookings-organization';
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
-export default function Organizations(){
+export default function bookingBusinesslist(){
 
     const router = useRouter(); // ✅ Create router object
 
     return(
         <ScrollView style={orgStyle.container}>
             <View style={orgStyle.headerContainer}>
-                <TouchableOpacity style={orgStyle.backArrow}  onPress={() => router.push('/signup/verification-complete')}>
+                <TouchableOpacity style={orgStyle.backArrow}  onPress={() => router.push('/(tabs)/my-bookings')}>
                     <Ionicons name="chevron-back" size={28} color="black" />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => router.push('/(tabs)/dashboard')} style={orgStyle.saveButton}>

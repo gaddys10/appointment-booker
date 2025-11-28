@@ -46,7 +46,7 @@ router.post('/login', async (req, res) => {
     // res.cookie('refresh_token', refresh, { httpOnly: true, secure: true, sameSite: 'lax', maxAge: 1000*Number(process.env.REFRESH_TTL) });
 
     res.status(200).json({
-        user: { id: user._id, email: user.email, isProvider: user.isProvider },
+        user: { id: user._id, email: user.email, isProvider: user.isProvider, firstName: user.firstName, lastName: user.lastName },
         tokens: { access, refresh }
     });
 });
@@ -54,13 +54,15 @@ router.post('/login', async (req, res) => {
 // Mock user creation
 router.post('/sign-up', async (req, res) => {
 
-    const { email, phone, password, isProvider } = req.body;
+    const { firstName, lastName, email, phone, password, isProvider } = req.body;
     console.log('➡️  POST /sign-up hit', { email, isProvider }); 
 
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const user = {
+            firstName,
+            lastName,
             email,
             phone,
             passwordHash: hashedPassword,

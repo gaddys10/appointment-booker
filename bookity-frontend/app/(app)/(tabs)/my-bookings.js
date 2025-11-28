@@ -29,7 +29,7 @@ export default function MyBookings() {
         </TouchableOpacity>
 
         {/* My Services */}
-        <TouchableOpacity style={mbstyle.section} onPress={() => router.push('/signup/services/business-list')}>
+        <TouchableOpacity style={mbstyle.section} onPress={() => router.push('/bookings/bookingBusinessList')}>
             <Text style={mbstyle.sectionText}>My Services</Text>
             <View style={[mbstyle.notification, { backgroundColor: '#000' }]}>
             <Text style={mbstyle.notificationText}>6</Text>

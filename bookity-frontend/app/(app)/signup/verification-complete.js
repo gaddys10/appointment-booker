@@ -3,7 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Dimensions } from 'react-native';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons'; // ✅ ADD THIS
-import { useRouter } from 'expo-router';        
+import { useRouter, useLocalSearchParams } from 'expo-router'; 
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -11,8 +11,18 @@ import { useState } from 'react'; // ✅ ADD THIS
 
 
 export default function VerificationComplete() {
-        const router = useRouter(); // ✅ Create router object
+    const router = useRouter(); // ✅ Create router object
+    const params  = useLocalSearchParams(); // ✅ Get the params from the URL
     
+    // rehydrate your formData
+    const formData = {
+        email:       params.email,
+        phone:       params.phone,
+        password:    params.password,
+        offersServices: params.isProvider === 'true',
+        firstName:  params.firstName,
+        lastName:   params.lastName,
+    };
 
     return (
         <View style={styles.container}>
@@ -20,7 +30,16 @@ export default function VerificationComplete() {
             <Text style={styles.message}>You have successfully activated your account.</Text>
             <TouchableOpacity
                 style={styles.button}
-                onPress={() => router.push('/(tabs)/dashboard')}
+                onPress={() => router.push({
+                    pathname: '/(tabs)/dashboard',
+                params: {
+                        firstName: formData.firstName,
+                        lastName: formData.lastName,
+                        email: formData.email,
+                        phone: formData.phone,
+                        isProvider: formData.offersServices ? 'true' : 'false',
+                    },
+                })}
             >
                 <Text style={styles.buttonText}>Continue to Dashboard</Text>
             </TouchableOpacity>

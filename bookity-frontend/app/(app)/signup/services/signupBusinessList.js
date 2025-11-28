@@ -25,17 +25,7 @@ export default function Organizations(){
             <Text style={orgStyle.header}>My Services</Text>
             <Text style={orgStyle.selectOrg}>Select Organization</Text>
 
-            {/* <TouchableOpacity style={orgStyle.optionContainer} onPress={() => router.push('/signup/services/business-info')}>
-                <View style={orgStyle.iconContainer}></View>
-                <View style={orgStyle.contentContainer}>
-                    <Text style={orgStyle.orgOption1}>Organization 1</Text>
-                    <Text style={orgStyle.type}>Business Type</Text>
-                    <Text style={orgStyle.addr}>1234 Address Drive City, State, Country</Text>
-                </View>
-                <View style={orgStyle.selectButton}  onPress={() => router.back()}>
-                    <Ionicons name='chevron-forward' size={28} color="black" />
-                </View>
-            </TouchableOpacity> */}
+            
 
             <BookingsOrganization
                 orgName="Organization 1"
