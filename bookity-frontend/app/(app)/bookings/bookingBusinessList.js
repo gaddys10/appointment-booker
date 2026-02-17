@@ -7,14 +7,14 @@ import BookingsOrganization from './components/bookings-organization';
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
-export default function Organizations(){
+export default function bookingBusinesslist(){
 
     const router = useRouter(); // ✅ Create router object
 
     return(
         <ScrollView style={orgStyle.container}>
             <View style={orgStyle.headerContainer}>
-                <TouchableOpacity style={orgStyle.backArrow}  onPress={() => router.push('/signup/verification-complete')}>
+                <TouchableOpacity style={orgStyle.backArrow}  onPress={() => router.push('/(tabs)/my-bookings')}>
                     <Ionicons name="chevron-back" size={28} color="black" />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => router.push('/(tabs)/dashboard')} style={orgStyle.saveButton}>
@@ -51,7 +51,7 @@ export default function Organizations(){
                 routerAddress="/signup/services/business-info"
             />
 
-            <TouchableOpacity style={orgStyle.optionContainer} onPress={() => router.push('/signup/services/business-info')}>
+            <TouchableOpacity style={orgStyle.optionContainer} onPress={() => router.push('booking-business-info')}>
                 <View style={[orgStyle.iconContainer, {backgroundColor: 'blue'}]}></View>
                 <View style={orgStyle.contentContainer}>
                     <Text style={orgStyle.orgOption1}>Organization 2</Text>
@@ -63,7 +63,7 @@ export default function Organizations(){
                 </View>
             </TouchableOpacity>
 
-            <TouchableOpacity style={orgStyle.optionContainer} onPress={() => router.push('signup/services/business-info')}>
+            <TouchableOpacity style={orgStyle.optionContainer} onPress={() => router.push('booking-business-info')}>
             <View style={[orgStyle.iconContainer, {backgroundColor: 'red'}]}></View>
                 <View style={orgStyle.contentContainer}>
                     <Text style={orgStyle.orgOption1}>Organization 3</Text>
@@ -75,7 +75,7 @@ export default function Organizations(){
                 </View>
             </TouchableOpacity>
 
-            <TouchableOpacity style={orgStyle.optionContainer} onPress={() => router.push('signup/services/business-info')}>
+            <TouchableOpacity style={orgStyle.optionContainer} onPress={() => router.push('booking-business-info')}>
                 <View style={orgStyle.contentContainer}>
                     <Text style={orgStyle.orgOption1}>Add New Business</Text>
                 </View>

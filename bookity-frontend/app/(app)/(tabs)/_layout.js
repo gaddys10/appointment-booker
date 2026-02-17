@@ -10,7 +10,7 @@ export default function TabsLayout() {
         tabBarInactiveTintColor: '#999',   // Inactive tab label color
         tabBarActiveBackgroundColor: '#2E5A6D',
         headerShown: false,
-    }}
+      }}
     >
       <Tabs.Screen
         name="dashboard"

@@ -9,7 +9,7 @@ const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
 
-export default function ChooseOrganization(){
+export default function SubmittedBookings(){
     const router = useRouter(); // ✅ Create router object
 
 
