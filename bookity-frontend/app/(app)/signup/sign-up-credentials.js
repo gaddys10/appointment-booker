@@ -1,22 +1,30 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, Switch, TouchableOpacity } from 'react-native';
 import { Dimensions } from 'react-native';
-import { Ionicons } from '@expo/vector-icons'; // ✅ ADD THIS
-import { useRouter } from 'expo-router'; // ✅ ADD THIS
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter, useLocalSearchParams} from 'expo-router';
 import { API_BASE } from '../../../services/config'; 
+import * as SecureStore from 'expo-secure-store'; // Import SecureStore for secure storage
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
 export default function SignUp() {
-    const router = useRouter(); // ✅ Create router object
+    const router = useRouter();
+    const params  = useLocalSearchParams();
+
+        // rehydrate your formData
+    const name = {
+        firstName:  params.firstName,
+        lastName:   params.lastName,
+    };
 
     //Create sign up form state
     const [formData, setFormData] = useState({
         phone: '',
         email: '',
-        firstName: '',
-        lastName: '',
+        firstName: params.firstName,
+        lastName: params.lastName,
         password: '',
         confirmPassword: '',
         offersServices: false,
@@ -60,21 +68,25 @@ export default function SignUp() {
                 })
             });
         
+            // Capture response data
             const data = await res.json();
+            console.log('Verification code POST response:', data);
 
-            // Check if the response is ok
-            console.log('Verification code Post Response:', data);
-            console.log(data.message);
+            // Check if response is ok
             if (!res.ok) throw new Error(data.error);
 
-            // If the response is ok, navigate to the verification screen
-            // Pass the email, phone, and password to the verification screen
+            // ✅ Save password temporarily in SecureStore so it doesn't travel via route params / URLs
+            await SecureStore.setItemAsync('bookitySignupPassword', formData.password);
+
+            // If the response is ok, navigate to the verification screen & pass entire user data WITHOUT pw
             router.push({
                 pathname: './verify',
                 params: {
                     email: formData.email,
                     phone: formData.phone,
-                    password: formData.password,
+
+                    // remove password & keep from leaking into params
+                    // password: formData.password,
                     isProvider: formData.offersServices ? 'true' : 'false',
                     securityCode: data.message,
                     firstName: formData.firstName,
@@ -85,9 +97,7 @@ export default function SignUp() {
         } catch (err) {
             Alert.alert('Signup Error', err.message);
         }
-        console.log('Form submitted:', formData);
-
-        // Add your form submission logic here
+        console.log('User account form submitted:', formData);
     };
 
     return (
@@ -99,25 +109,7 @@ export default function SignUp() {
 
                 <Text style={styles.title}>Sign Up</Text>
 
-                <Text style={styles.subtitle}>Enter Name</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="First Name*"
-                    value={formData.firstName}
-                    onChangeText={(value) => handleChange('firstName', value)}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    textContentType="oneTimeCode"
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Last Name*"
-                    value={formData.lastName}
-                    onChangeText={(value) => handleChange('lastName', value)}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    textContentType="oneTimeCode"
-                />
+                <Text style={styles.intro}>Nice to meet you, {name.firstName} {name.lastName}</Text>
 
                 <Text style={styles.subtitle}>Enter Email or Phone Number</Text>
                 <TextInput
@@ -169,60 +161,62 @@ export default function SignUp() {
                     console.log('Verify Account pressed')
                     handleSubmit();
                 }}>
-                    <Text style={styles.loginButtonText}>Verify Account </Text>
+                    <Text style={styles.loginButtonText}>Verify Account</Text>
                 </TouchableOpacity>
-
             </View>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    
     backButton: {
-        position: 'absolute',
-        top: 20,
-        left: 20,
-        zIndex: 1,
         height: 40,
         width: 40,
+        left: 20,
+        position: 'absolute',
+        top: 20,
+        zIndex: 1,
     },
     bodyContainer: {
-        justifyContent: 'flex-start',
-        alignItems: 'center',
         height: screenHeight - 250,
-        //move this to the top
-        marginTop: -110
+        marginTop: -110,
+        alignItems: 'center',
+        justifyContent: 'flex-start',
     },
     container: {
-        flex: 1,
         padding: 20,
         backgroundColor: '#E3FAEC',
+        flex: 1,
     },
-        loginButton: {
-        backgroundColor: '#5ED2AA', // Bookity blue?
+    loginButton: {
+        width: 300,
+        marginTop: 15,
         paddingVertical: 14,
         paddingHorizontal: 30,
-        borderRadius: 12,
-        width: 300,
         alignItems: 'center',
+        backgroundColor: '#5ED2AA', // Bookity blue?
+        borderRadius: 12,
+        elevation: 3, //Android only style? 
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.15,
         shadowRadius: 4,
-        elevation: 3,
-        marginTop: 15
     },
     input: {
+        height: 40,
+        marginBottom: 15,
+        width: screenWidth - 40,
+        backgroundColor: '#fff',
         borderWidth: 1,
         borderColor: '#ccc',
         borderRadius: 5,
-        padding: 10,
-        marginBottom: 15,
         fontSize: 16,
-        backgroundColor: '#fff',
-        width: screenWidth - 40,
-        height: 40
+        padding: 10,
+    },
+    intro: {
+        marginBottom: 10,
+        marginTop: 30,
+        fontSize: 16,
     },
     loginButtonText: {
         color: '#fff',
@@ -246,13 +240,13 @@ const styles = StyleSheet.create({
         marginVertical: 10,
     },
     title: {
-        fontSize: 36,
-        fontWeight: 'bold',
         marginBottom: 30,
+        marginTop: 112,
+        fontSize: 18,
+        fontWeight: 'bold',
         textAlign: 'center',
-        marginTop: 140
     },
     vendorText: {
-        marginRight: 10,
+        marginRight: 10
     },
 });

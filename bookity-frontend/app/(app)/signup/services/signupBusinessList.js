@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, ScrollView } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons'; // ✅ ADD THIS
 import { Dimensions } from 'react-native';
 import BookingsOrganization from '../../bookings/components/bookings-organization';
@@ -10,6 +10,17 @@ const screenHeight = Dimensions.get('window').height;
 export default function Organizations(){
 
     const router = useRouter(); // ✅ Create router object
+    const params  = useLocalSearchParams(); // ✅ Get the params from the URL
+    
+    // rehydrate your formData
+    const formData = {
+        email:       params.email,
+        phone:       params.phone,
+        password:    params.password,
+        offersServices: params.isProvider === 'true',
+        firstName:  params.firstName,
+        lastName:   params.lastName,
+    };
 
     return(
         <ScrollView style={orgStyle.container}>
@@ -22,55 +33,32 @@ export default function Organizations(){
                     <Ionicons name="checkmark" size={16} color="black" />
                 </TouchableOpacity>
             </View>
-            <Text style={orgStyle.header}>My Services</Text>
-            <Text style={orgStyle.selectOrg}>Select Organization</Text>
+
+            <Text style={orgStyle.header}>My Businesses</Text>
+            <Text style={orgStyle.selectOrg}>Select Business</Text>
 
             
 
             <BookingsOrganization
-                orgName="Organization 1"
+                orgName="Business 1"
                 orgType="Business Type"
                 orgAddress="1234 Address Drive City, State, Country"
                 routerAddress="/signup/services/business-info"
             />
 
             <BookingsOrganization
-                orgName="Organization 2"
+                orgName="Business2 2"
                 orgType="Business Type"
                 orgAddress="1234 Address Drive City, State, Country"
-                routerAddress="/signup/services/business-info"
+                routerAddress="/signup/services/signup-business-info"
             />
 
-            <TouchableOpacity style={orgStyle.optionContainer} onPress={() => router.push('/signup/services/business-info')}>
-                <View style={[orgStyle.iconContainer, {backgroundColor: 'blue'}]}></View>
+            <TouchableOpacity style={orgStyle.optionContainer} onPress={() => router.push('signup/services/signup-create-business')}>
                 <View style={orgStyle.contentContainer}>
-                    <Text style={orgStyle.orgOption1}>Organization 2</Text>
-                    <Text style={orgStyle.type}>Business Type</Text>
-                    <Text style={orgStyle.addr}>1234 Address Drive City, State, Country</Text>
+                    <Text style={orgStyle.addBusinessLabel}>Add New Business</Text>
                 </View>
                 <View style={orgStyle.selectButton}  onPress={() => router.back()}>
-                    <Ionicons name='chevron-forward' size={28} color="black" />
-                </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={orgStyle.optionContainer} onPress={() => router.push('signup/services/business-info')}>
-            <View style={[orgStyle.iconContainer, {backgroundColor: 'red'}]}></View>
-                <View style={orgStyle.contentContainer}>
-                    <Text style={orgStyle.orgOption1}>Organization 3</Text>
-                    <Text style={orgStyle.type}>Business Type</Text>
-                    <Text style={orgStyle.addr}>1234 Address Drive City, State, Country</Text>
-                </View>
-                <View style={orgStyle.selectButton}  onPress={() => router.back()}>
-                    <Ionicons name='chevron-forward' size={28} color="black" />
-                </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={orgStyle.optionContainer} onPress={() => router.push('signup/services/business-info')}>
-                <View style={orgStyle.contentContainer}>
-                    <Text style={orgStyle.orgOption1}>Add New Business</Text>
-                </View>
-                <View style={orgStyle.selectButton}  onPress={() => router.back()}>
-                    <Ionicons name='chevron-forward' size={28} color="black" />
+                    <Ionicons name='chevron-forward' size={22} color="black" />
                 </View>
             </TouchableOpacity>
             
@@ -79,25 +67,48 @@ export default function Organizations(){
 }
 
 const orgStyle = StyleSheet.create({
+    addBusinessLabel: {
+        fontSize: 16,
+        marginTop: 38,
+        marginLeft: 15,
+        color: '#333',
+        fontWeight: 'bold',
+        // textDecorationLine: 'underline',
+    },
     addr:{
-        // marginTop: 45,
-        // marginLeft: -80,
         fontSize: 12,
         marginLeft: 10,
     },
-    container:{
-        flex: 1,
-        // paddingHorizontal: 10,
-        backgroundColor: '#E3FAEC',
+    advancedContainer:{
+        alignItems:'flex-end',
+    },
+    advanced:{
+        fontSize: 16,
+        color:'#5ED2AA',
     },
     BookingsOrganization: {
         marginLeft: 20,
+    },
+    container:{
+        flex: 1,
+        backgroundColor: '#E3FAEC',
     },
     header:{
         fontSize: 24,
         marginTop: 20,
         marginLeft: 5,
         color: '#333',
+    },
+    headerContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 10,
+        paddingHorizontal: 10,
+        paddingTop: 10,
+        height: 75,
+        width: screenWidth,
+        backgroundColor: '#fff'
     },
     iconContainer: {
         height: 75,
@@ -125,7 +136,7 @@ const orgStyle = StyleSheet.create({
         marginTop: 30,
         marginLeft: 25,
         color: '#333',
-        textDecorationLine: 'underline',
+        // textDecorationLine: 'underline',
     },
     orgOption1:{
         fontSize: 16,
@@ -133,6 +144,17 @@ const orgStyle = StyleSheet.create({
         marginLeft: 10,
         color: '#333',
         textDecorationLine: 'underline',
+    },
+    saveButton: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        backgroundColor: '#5ED2AA',
+        padding: 10,
+        borderRadius: 10,
+        marginVertical: 20,
+        width: screenWidth - 280,
+        height: 40,
+        // marginLeft: 20
     },
     searchBox:{
         height: 50,
@@ -144,9 +166,10 @@ const orgStyle = StyleSheet.create({
         marginBottom: 20,
     },
     selectButton:{
-        alignItems: 'center',
+        marginLeft: 'auto',   // <-- this is the “sticky right” part
         justifyContent: 'center',
-        marginLeft: 20,
+        alignItems: 'center',
+        width: 32, 
     },
     selectOrg:{
         fontSize: 16,
@@ -164,33 +187,4 @@ const orgStyle = StyleSheet.create({
         color: '#333',
     },
 
-    advancedContainer:{
-        alignItems:'flex-end',
-    },
-    advanced:{
-        fontSize: 16,
-        color:'#5ED2AA',
-    },
-    headerContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 10,
-        paddingHorizontal: 10,
-        paddingTop: 10,
-        height: 75,
-        width: screenWidth,
-        backgroundColor: '#fff'
-    },
-    saveButton: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        backgroundColor: 'green',
-        padding: 10,
-        borderRadius: 10,
-        marginVertical: 20,
-        width: screenWidth - 280,
-        height: 40,
-        // marginLeft: 20
-    },
 })

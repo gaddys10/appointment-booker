@@ -13,10 +13,12 @@ export default function BookingsOrganization({orgName, orgType, orgAddress, rout
             <View style={orgStyle.contentContainer}>
                 <Text style={orgStyle.orgOption1}>{orgName}</Text>
                 <Text style={orgStyle.type}>{orgType}</Text>
-                <Text style={orgStyle.addr}>{orgAddress}</Text>
+                <Text style={orgStyle.addr} numberOfLines={2} ellipsizeMode='tail'>
+                    {orgAddress}
+                </Text>
             </View>
             <View style={orgStyle.selectButton}  onPress={() => router.back()}>
-                <Ionicons name='chevron-forward' size={28} color="black" />
+                <Ionicons name='chevron-forward' size={22} color="black" />
             </View>
         </TouchableOpacity>
     );
@@ -29,6 +31,12 @@ const orgStyle = StyleSheet.create({
         fontSize: 12,
         marginLeft: 10,
     },
+    contentContainer: {
+        flex: 1,          // takes remaining space
+        flexShrink: 1,    // allows shrinking so chevron never gets pushed weirdly
+        marginLeft: 10,
+        paddingRight: 8,  // breathing room before chevron
+    },
     iconContainer: {
         height: 75,
         width: 75,
@@ -40,6 +48,7 @@ const orgStyle = StyleSheet.create({
     },
     optionContainer: {
         flexDirection: 'row',
+        alginItems: 'center',
         paddingLeft: 10,
         marginTop: 20,
         marginleft: 10,
@@ -51,24 +60,19 @@ const orgStyle = StyleSheet.create({
         backgroundColor: '#fff',
         // alignItems: 'center',
     },
-    orgOption:{
-        fontSize: 16,
-        marginTop: 30,
-        marginLeft: 25,
-        color: '#333',
-        textDecorationLine: 'underline',
-    },
     orgOption1:{
         fontSize: 16,
         marginTop: 10,
         marginLeft: 10,
         color: '#333',
-        textDecorationLine: 'underline',
+        // textDecorationLine: 'underline',
+        fontWeight: 'bold',
     },
     selectButton:{
-        alignItems: 'center',
+        marginLeft: 'auto',   // <-- this is the “sticky right” part
         justifyContent: 'center',
-        marginLeft: 20,
+        alignItems: 'center',
+        width: 32, 
     },
     type: {
         fontSize: 12,

@@ -104,7 +104,7 @@ export default function Bookity() {
 
             <TouchableOpacity style={bStyles.loginButton} onPress={() => {
                 console.log('Sign Up pressed')
-                router.push('./signup/sign-up')
+                router.push('./signup/sign-up-enter-name');
             }}>
                 <Text style={bStyles.loginButtonText}>Sign Up </Text>
             </TouchableOpacity>

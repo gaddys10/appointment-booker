@@ -4,28 +4,37 @@ import { Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router'; 
 import { API_BASE } from '../../../services/config'; 
-
+import * as SecureStore from 'expo-secure-store';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
+// This is where user actually logs in upon sign up 
 export default function Verify() {
     const router = useRouter(); // ✅ Create router object
+
     const params  = useLocalSearchParams(); // ✅ Get the params from the URL
 
     const [code, setCode] = useState(['', '', '', '', '', '']);
 
-    const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
+    const [signupPassword, setSignupPassword] = useState(null); // ✅ will hold the temp password
+
+    // Fetch the temp password from secure store
+    useEffect(() => {
+        // Fetch the temp password from secure store via async function returning a promise
+        (async () => {
+            // ✅ Pull the temp password from SecureStore (created on the previous screen)
+            const pw = await SecureStore.getItemAsync('bookitySignupPassword');
+            setSignupPassword(pw); // pw can be null if something went wrong
+        })();
+    }, []);
+
     const LOCAL_BASE = 'http://localhost:3000';
 
-    // Create a ref to store the input elements
-    // This will allow us to focus on the next input when the user types a digit
+    // Create a ref to store the input elements so we can focus on next input on type
     const inputs = useRef([]);
 
-    // Create a function to handle the change in the input fields
-    // When the user types a digit, we update the code state and focus on the next input
-    // If the user deletes a digit, we focus on the previous input
-    // We also check if all 6 digits are filled and if so, we submit the form
+    // function to handle input field change
     const handleChange = (text, index) => {
         const newCode = [...code];
         newCode[index] = text;
@@ -36,77 +45,90 @@ export default function Verify() {
         }
     };
     
-    // Create a function to handle the key press event
+    // function to handle the key press event
     const handleKeyPress = ({ nativeEvent }, index) => {
         if (nativeEvent.key === 'Backspace' && code[index] === '' && index > 0) {
             inputs.current[index - 1].focus();
         }
     };
 
-    // rehydrate your formData
-    const formData = {
-        email:       params.email,
-        phone:       params.phone,
-        password:    params.password,
-        offersServices: params.isProvider === 'true',
-        firstName:  params.firstName,
-        lastName:   params.lastName,
-    };
-
-     // ✅ Check if all 6 digits are filled
+     // Check if all 6 digits are filled
     useEffect(() => {
+        if (!signupPassword) return; // ✅ wait until password is loaded
         const allFilled = code.every(digit => digit !== '');
         if (!allFilled) return;
 
         console.log("Security Code: " + params.securityCode);
-        console.log(params)
 
-        const otp = code.join('');
+        const codeEntered = code.join('');
+        console.log("Code Entered: " + codeEntered);
 
-                console.log("Code Entered:" + otp);
-
-        if (otp !== params.securityCode){
-            Alert.alert('Invalid code', 'The verification code you entered is incorrect. Please try again.');
-            //clear code inputs
-            setCode(['', '', '', '', '', '']);
-            inputs.current[0].focus();
-            return;
-        }
+        // if (codeEntered !== params.securityCode){
+        //     Alert.alert('Invalid code', 'The verification code you entered is incorrect. Please try again.');
+        //     //clear code inputs
+        //     setCode(['', '', '', '', '', '']);
+        //     inputs.current[0].focus();
+        //     return;
+        // }
 
         const submitSignUp = async () => {
             // Create account
             try {
-                console.log("otp:", otp);
                 const res = await fetch(`${LOCAL_BASE}/api/auth/sign-up`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        firstName: formData.firstName,
-                        lastName: formData.lastName,
-                        email:  formData.email,
-                        phone: formData.phone,
-                        password: formData.password,
-                        isProvider: formData.offersServices,
-                        code: otp
+                        firstName: params.firstName,
+                        lastName: params.lastName,
+                        email:  params.email,
+                        phone: params.phone,
+                        password: signupPassword, // Use the temp password we fetched earlier
+                        isProvider: params.offersServices,
+                        code: codeEntered
                     })
                 });
+
                 const data = await res.json();
+
                 if (!res.ok) {
                     console.log('Signup failed:', res.status, data);
                     Alert.alert('Signup failed', data?.error || 'Please try again.');
                     return; // don't navigate
                 }
+
                 console.log('User created:', data); // ideally includes userId or token
 
+                // 🔒 Pull token & user off the response (adjust keys to match your API)
+                const token = data.tokens
+                const user = data.user
+
+                if (!token) {
+                    console.warn('No token returned from sign-up response:', data);
+                    Alert.alert(
+                        'Signup error',
+                        'Account created but no login token was returned. Please try logging in manually.'
+                    );
+                    return;
+                } else {
+                    try {
+                        // ✅ Persist token (and optionally user) for login persistence
+                        await SecureStore.setItemAsync('bookity_access', token.access);
+                        if (user) {
+                            await SecureStore.setItemAsync('bookity_user', JSON.stringify(user));
+                        }
+
+                        console.log('Token saved to SecureStore'); 
+                    } catch (storageError) {
+                        console.error('Error saving auth token:', storageError);
+                        // not fatal, but good to know
+                    }
+                }
+
+                // ✅ cleanup: delete the temp password now that signup succeeded
+                await SecureStore.deleteItemAsync('bookitySignupPassword');
+                
                 router.push({
-                    pathname: './verification-complete',
-                params: {
-                        email: formData.email,
-                        phone: formData.phone,
-                        firstName: formData.firstName,
-                        lastName: formData.lastName,
-                        isProvider: formData.offersServices ? 'true' : 'false',
-                    },
+                    pathname: './verification-complete'
                 });
             } catch (error) {
                 console.error('Error creating account:', error);
@@ -116,14 +138,14 @@ export default function Verify() {
             // ✅ Navigate to verification-complete page
             
         submitSignUp();
-    }, [code]);
+    }, [code, signupPassword]);
 
     return (
         <View style={styles.container}>
             <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
                 <Ionicons name="arrow-back-outline" size={28} color="black" />
             </TouchableOpacity>
-            <Text style={styles.label}>Alright {formData.firstName}, one last step</Text>
+            <Text style={styles.label}>Alright, one last step</Text>
             <View style={styles.bodyContainer}>
                 <Text style={styles.title}>Verify Account</Text>
                 <Text> A code was sent to phone number or email and expires in 15 minutes</Text>

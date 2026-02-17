@@ -66,7 +66,7 @@ const Services = () => {
                         </View>
                     </TouchableOpacity>
                 ))}
-                <TouchableOpacity key={service.id} style={styles.card} onPress={() => router.push('/signup/services/edit-service')}>
+                {/* <TouchableOpacity key={service.id} style={styles.card} onPress={() => router.push('/signup/services/edit-service')}>
                     <View>
                         <Text style={styles.name}>${service.name}</Text>
                         <Text style={styles.description}>${service.description}</Text>
@@ -75,7 +75,7 @@ const Services = () => {
                     <View style={styles.selectButton}  onPress={() => router.back()}>
                         <Ionicons name='pencil' size={24} color="black" />
                     </View>
-                </TouchableOpacity> 
+                </TouchableOpacity>  */}
 
 
                 <Text style={styles.secondTitle}>Business Hours</Text>

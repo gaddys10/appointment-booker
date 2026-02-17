@@ -51,7 +51,7 @@ export default function bookingBusinesslist(){
                 routerAddress="/signup/services/business-info"
             />
 
-            <TouchableOpacity style={orgStyle.optionContainer} onPress={() => router.push('/signup/services/business-info')}>
+            <TouchableOpacity style={orgStyle.optionContainer} onPress={() => router.push('booking-business-info')}>
                 <View style={[orgStyle.iconContainer, {backgroundColor: 'blue'}]}></View>
                 <View style={orgStyle.contentContainer}>
                     <Text style={orgStyle.orgOption1}>Organization 2</Text>
@@ -63,7 +63,7 @@ export default function bookingBusinesslist(){
                 </View>
             </TouchableOpacity>
 
-            <TouchableOpacity style={orgStyle.optionContainer} onPress={() => router.push('signup/services/business-info')}>
+            <TouchableOpacity style={orgStyle.optionContainer} onPress={() => router.push('booking-business-info')}>
             <View style={[orgStyle.iconContainer, {backgroundColor: 'red'}]}></View>
                 <View style={orgStyle.contentContainer}>
                     <Text style={orgStyle.orgOption1}>Organization 3</Text>
@@ -75,7 +75,7 @@ export default function bookingBusinesslist(){
                 </View>
             </TouchableOpacity>
 
-            <TouchableOpacity style={orgStyle.optionContainer} onPress={() => router.push('signup/services/business-info')}>
+            <TouchableOpacity style={orgStyle.optionContainer} onPress={() => router.push('booking-business-info')}>
                 <View style={orgStyle.contentContainer}>
                     <Text style={orgStyle.orgOption1}>Add New Business</Text>
                 </View>

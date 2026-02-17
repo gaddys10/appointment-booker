@@ -1,31 +1,36 @@
+const { faMaximize } = require('@fortawesome/free-solid-svg-icons');
 const mongoose = require('mongoose');
 
 const serviceSchema = new mongoose.Schema(
     {
         name: { type: String, required: true, trim: true },
         description: { type: String, trim: true },
+        priceCents: { type: Number, required: true }, // in cents to avoid float issues
         durationMinutes: { type: Number, required: true }, // 30, 45, 60 etc
-        price: { type: Number, required: true },           // in dollars
+        isActive: { type: Boolean, default: true }, // for soft-deleting services
     },
-    { _id: false }
+    { timestamps: true }
 );
 
 const businessSchema = new mongoose.Schema(
     {
         owner: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
-        index: true,
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true,
+            index: true,
         },
+
         name: { type: String, required: true, trim: true },
-        type: { type: String, required: true, trim: true }, // "barbershop", "nails", etc.
         description: { type: String, trim: true },
+        type: { type: String, required: true, trim: true }, // "barbershop", "nails", etc.
+
         address: { type: String, trim: true },
         city: { type: String, trim: true },
         phone: { type: String, trim: true },
+        email: { type: String, trim: true, maxLength: 100 },
 
-        services: [serviceSchema],
+        services: { type: [serviceSchema], default: [] },
     },
     { timestamps: true }
 );
