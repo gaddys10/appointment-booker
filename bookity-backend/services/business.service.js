@@ -15,9 +15,11 @@ async function createBusiness({ ownerId, payload }) {
         owner: ownerId,
         name: payload.name,
         description: payload.description,
+        type: payload.type,
         phone: payload.phone,
         email: payload.email,
-        addressText: payload.addressText,
+        address: payload.address,
+        city: payload.city,
         services: payload.services ?? [],
     });
 }

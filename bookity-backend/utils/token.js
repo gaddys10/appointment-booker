@@ -11,4 +11,10 @@ const signAccess = (payload) =>
 const signRefresh = (payload) =>
     jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: Number(process.env.REFRESH_TTL) });
 
-module.exports = { signAccess, signRefresh };
+// Verify access token
+const verifyAccess = (token) => jwt.verify(token, process.env.JWT_SECRET);
+
+// Verify refresh token
+const verifyRefresh = (token) => jwt.verify(token, process.env.JWT_SECRET);
+
+module.exports = { signAccess, signRefresh, verifyAccess, verifyRefresh };

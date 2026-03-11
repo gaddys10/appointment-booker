@@ -130,11 +130,11 @@ router.post('/sign-up', async (req, res) => {
         // ⬅️ build a JWT payload, keeping it small
         // only what api needs for autho/role checks
         // avoid packing w/ too much data. treat jwt as a proof, not profile. 
-        const payload = {
-            userId: createdUser._id,
-            email: createdUser.email,
-            isProvider: createdUser.isProvider
-        };
+        // const payload = {
+        //     userId: createdUser._id,
+        //     email: createdUser.email,
+        //     isProvider: createdUser.isProvider
+        // };
 
         // Centralize secret management in .env. in prod, always requre a real env seret
         const secret = process.env.JWT_SECRET || 'dev-secret-change-me';
@@ -143,8 +143,22 @@ router.post('/sign-up', async (req, res) => {
         // This is what the client sends on every request: Authorization: Bearer <access>
         // We are KEEPING your existing behavior here — you were already signing one token.
         // Only change: we name it "access" to match your /login response shape.
-        const access = jwt.sign(payload, secret, { expiresIn: '7d' });
+        // const access = jwt.sign(payload, secret, { expiresIn: '7d' });
 
+        // const access = jwt.sign(
+        //     {
+        //         uid: createdUser._id,
+        //         email: createdUser.email,
+        //         isProvider: createdUser.isProvider,
+        //     },
+        //     secret,
+        //     { expiresIn: '7d' }
+        // );
+
+        const access = signAccess({
+            uid: createdUser._id,
+            role: createdUser.isProvider ? 'provider' : 'customer',
+        });
         // ⬅️ sign the token (use env secret in real life)
         // const token = jwt.sign(
         //     payload,
@@ -160,15 +174,20 @@ router.post('/sign-up', async (req, res) => {
         //
         // This is *minimal* refresh: a long-lived JWT with a type marker.
         // Later, you can add rotation/tokenVersion stored in DB for revocation.
-        const refresh = jwt.sign(
-            {
-                userId: createdUser._id,
-                type: 'refresh',
-                // tokenVersion: createdUser.tokenVersion || 0, // optional later (revocation)
-            },
-            secret,
-            { expiresIn: '30d' }
-        );
+        // const refresh = jwt.sign(
+        //     {
+        //         userId: createdUser._id,
+        //         type: 'refresh',
+        //         // tokenVersion: createdUser.tokenVersion || 0, // optional later (revocation)
+        //     },
+        //     secret,
+        //     { expiresIn: '30d' }
+        // );
+
+        const refresh = signRefresh({
+            uid: createdUser._id,
+            v: createdUser.tokenVersion || 0,
+        });
 
         // ⬅️ strip passwordHash before sending user back
         const userObject = createdUser.toObject();

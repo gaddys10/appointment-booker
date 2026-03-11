@@ -108,10 +108,9 @@ export default function SignUp() {
             <View style={styles.bodyContainer}>
 
                 <Text style={styles.title}>Sign Up</Text>
-
                 <Text style={styles.intro}>Nice to meet you, {name.firstName} {name.lastName}</Text>
-
                 <Text style={styles.subtitle}>Enter Email or Phone Number</Text>
+
                 <TextInput
                     style={styles.input}
                     placeholder="Email*"
@@ -157,10 +156,10 @@ export default function SignUp() {
                     />
                 </View>
 
-                <TouchableOpacity style={styles.loginButton} onPress={() => {
-                    console.log('Verify Account pressed')
-                    handleSubmit();
-                }}>
+                    <TouchableOpacity style={styles.loginButton} onPress={() => {
+                        console.log('Verify Account pressed')
+                        handleSubmit();
+                    }}>
                     <Text style={styles.loginButtonText}>Verify Account</Text>
                 </TouchableOpacity>
             </View>

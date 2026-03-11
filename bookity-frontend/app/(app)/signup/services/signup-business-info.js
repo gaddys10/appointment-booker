@@ -157,9 +157,6 @@ const Services = () => {
                     </View>
                 </View>
                 
-
-
-                
             </ScrollView>
         </View>
     );
@@ -188,7 +185,6 @@ const styles = StyleSheet.create({
         marginVertical: 20,
         width: screenWidth - 300,
         height: 40,
-        // marginLeft: 20
     },
     photoContainer: {
         flexDirection: 'row',
@@ -200,7 +196,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         marginTop: -12,
         marginHorizontal: 5
-        // marginLeft: 20,
     },
     title: {
         fontSize: 24,

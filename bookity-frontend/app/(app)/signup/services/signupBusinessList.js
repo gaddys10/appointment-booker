@@ -37,9 +37,7 @@ export default function Organizations(){
             <Text style={orgStyle.header}>My Businesses</Text>
             <Text style={orgStyle.selectOrg}>Select Business</Text>
 
-            
-
-            <BookingsOrganization
+            {/* <BookingsOrganization
                 orgName="Business 1"
                 orgType="Business Type"
                 orgAddress="1234 Address Drive City, State, Country"
@@ -51,7 +49,7 @@ export default function Organizations(){
                 orgType="Business Type"
                 orgAddress="1234 Address Drive City, State, Country"
                 routerAddress="/signup/services/signup-business-info"
-            />
+            /> */}
 
             <TouchableOpacity style={orgStyle.optionContainer} onPress={() => router.push('signup/services/signup-create-business')}>
                 <View style={orgStyle.contentContainer}>
@@ -124,6 +122,8 @@ const orgStyle = StyleSheet.create({
         paddingLeft: 10,
         marginTop: 20,
         borderRadius: 12,
+        borderTopLeftRadius: 0,
+        borderBottomLeftRadius: 0,
         width: screenWidth - 20,
         height: 100,
         borderWidth: 1,

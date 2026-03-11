@@ -1,8 +1,9 @@
-import React from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; // ✅ ADD THIS
 import { useRouter } from 'expo-router';
 import { Dimensions } from 'react-native';
+import * as SecureStore from 'expo-secure-store';
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
@@ -16,14 +17,62 @@ const Services = () => {
 
     const router = useRouter(); // ✅ Create router object
 
-    return (
+    const [businessName, setBusinessName] = useState('');
+    const [address, setAddress] = useState('');
+    const [businessType, setBusinessType] = useState('');
+    const [description, setDescription] = useState('');
 
+    const handleAddBusiness = async () => {
+        const token = await SecureStore.getItemAsync('bookity_access');
+        if (!token) {
+            Alert.alert('Error', 'Not logged in');
+            return;
+        }
+
+        const payload = {
+            name: businessName,
+            description,
+            type: businessType,
+            address,
+            services: services.map(s => ({
+                name: s.name,
+                description: s.description,
+                priceCents: s.price * 100,
+                durationMinutes: 60,
+            }))
+        };
+
+        try {
+            const res = await fetch('http://localhost:3000/api/businesses', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (res.ok) {
+                Alert.alert('Success', 'Business created successfully');
+                router.push('/signup/services/signupBusinessList'); // or wherever
+            } else {
+                const error = await res.json();
+                Alert.alert('Error', error.error || 'Failed to create business');
+                console.log(error);
+            }
+        } catch (err) {
+            console.error(err);
+            Alert.alert('Error', 'Network error');
+        }
+    };
+
+    return (
         <View style={{ flex: 1, backgroundColor: '#E3FAEC' }}>
             <View style={styles.headerContainer}>
-                <TouchableOpacity style={styles.backArrow}  onPress={() => router.push('/signup/services/business-list')}>
+                <TouchableOpacity style={styles.backArrow}  onPress={() => router.push('/signup/services/signupBusinessList')}>
                     <Ionicons name="chevron-back" size={28} color="black" />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => router.push('/signup/services/business-list')} style={styles.saveButton}>
+                <TouchableOpacity onPress={handleAddBusiness} style={styles.saveButton}>
                     <Text style={{ fontSize: 16, marginLeft: 5 }}>Save</Text>
                     <Ionicons name="checkmark" size={16} color="black" />
                 </TouchableOpacity>
@@ -37,35 +86,37 @@ const Services = () => {
                 </View>
 
                 <Text style={styles.selectOrg}>Business Name</Text>
-                <TextInput style={styles.box} placeholder='Enter Business Name..'></TextInput>
+                <TextInput style={styles.box} placeholder='Enter Business Name..' value={businessName} onChangeText={setBusinessName}></TextInput>
                 
                 <Text style={styles.selectOrg}>Business Location</Text>
-                <TextInput style={styles.box} placeholder='Enter Business Address..'></TextInput>
+                <TextInput style={styles.box} placeholder='Enter Business Address..' value={address} onChangeText={setAddress}></TextInput>
                 
                 <Text style={styles.selectOrg}>Business Type</Text>
-                <TextInput style={styles.box} placeholder='Enter Business Type..'></TextInput>
+                <TextInput style={styles.box} placeholder='Enter Business Type..' value={businessType} onChangeText={setBusinessType}></TextInput>
 
                 <Text style={styles.selectOrg}>Business Description</Text>
                 <TextInput 
                     style={styles.dbox} 
                     placeholder='Enter Business Description..' 
                     multiline={true}
+                    value={description}
+                    onChangeText={setDescription}
                     >
                 </TextInput>
 
                 <Text style={styles.secondTitle}>Business Services</Text>
-                {services.map((service) => (
-                    <TouchableOpacity key={service.id} style={styles.card} onPress={() => router.push('/signup/services/edit-service')}>
+                
+                    <TouchableOpacity  style={styles.card} onPress={() => router.push('/signup/services/edit-service')}>
                         <View>
-                            <Text style={styles.name}>{service.name}</Text>
-                            <Text style={styles.description}>{service.description}</Text>
-                            <Text style={styles.price}>Price: ${service.price}</Text>
+                            <Text style={styles.name}>Add Service</Text>
+                            {/* <Text style={styles.description}></Text> */}
+                            {/* <Text style={styles.price}>Price: $</Text> */}
                         </View>
                         <View style={styles.selectButton}  onPress={() => router.back()}>
                             <Ionicons name='pencil' size={24} color="black" />
                         </View>
                     </TouchableOpacity>
-                ))}
+                
                 {/* <TouchableOpacity key={service.id} style={styles.card} onPress={() => router.push('/signup/services/edit-service')}>
                     <View>
                         <Text style={styles.name}>${service.name}</Text>
@@ -156,10 +207,6 @@ const Services = () => {
                         <TextInput style={styles.hours} placeholder='' />
                     </View>
                 </View>
-                
-
-
-                
             </ScrollView>
         </View>
     );
@@ -204,6 +251,10 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 24,
+        marginBottom: 10,
+    },
+    selectOrg: {
+        fontSize: 18,
         marginBottom: 10,
     },
     dayContainer: {
