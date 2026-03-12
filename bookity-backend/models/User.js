@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema(
         passwordHash: { type: String, required: true },
         isProvider: { type: Boolean, default: false, index: true },
         isVerified: { type: Boolean, default: false, index: true },
+        businesses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Business' }],
     },
     { 
         timestamps: true 

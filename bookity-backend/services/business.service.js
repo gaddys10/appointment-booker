@@ -1,6 +1,7 @@
 // services/business.service.js
 const mongoose = require('mongoose');
 const Business = require('../models/Business');
+const User = require('../models/User');
 
 function assertObjectId(id, msg = 'Invalid id') {
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -11,7 +12,7 @@ function assertObjectId(id, msg = 'Invalid id') {
 }
 
 async function createBusiness({ ownerId, payload }) {
-    return Business.create({
+    const business = await Business.create({
         owner: ownerId,
         name: payload.name,
         description: payload.description,
@@ -22,6 +23,14 @@ async function createBusiness({ ownerId, payload }) {
         city: payload.city,
         services: payload.services ?? [],
     });
+
+    await User.findByIdAndUpdate(
+        ownerId, 
+        { $addToSet: { businesses: business._id } },
+        { new: true }
+    );
+
+    return business;
 }
 
 async function listMyBusinesses({ ownerId, limit = 20, skip = 0, sort = '-createdAt' }) {
