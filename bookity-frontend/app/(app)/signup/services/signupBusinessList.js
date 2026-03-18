@@ -1,26 +1,78 @@
-import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons'; // ✅ ADD THIS
 import { Dimensions } from 'react-native';
 import BookingsOrganization from '../../bookings/components/bookings-organization';
+import * as SecureStore from 'expo-secure-store';
 const screenWidth = Dimensions.get('window').width;
-const screenHeight = Dimensions.get('window').height;
+import { useEffect, useState } from 'react';
 
 export default function Organizations(){
 
     const router = useRouter(); // ✅ Create router object
     const params  = useLocalSearchParams(); // ✅ Get the params from the URL
+    const [token, setToken] = useState(null);
+    const [businesses, setBusinesses] = useState([]);
+
+    const checkToken = async () => {
+        const token = await SecureStore.getItemAsync('bookity_access');
+        console.log('User Token:', token);
+        setToken(token);
+    };
+
+    const fetchCurrentUser = async () => {
+        try {
+            const res = await fetch('http://localhost:3000/api/auth/me', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            const data = await res.json();
+            console.log('current user response:', data);
+        } catch (err) {
+            console.error('fetch current user error:', err);
+        }
+    };
+
+    const fetchBusinesses = async () => {
+        try {
+            const res = await fetch('http://localhost:3000/api/businesses/mine', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            const data = await res.json();
+            console.log('businesses response:', data);
+            setBusinesses(data.items || []);
+        } catch (err) {
+            console.error('fetch businesses error:', err);
+        }
+    };
+    
+    useEffect(() => {
+        checkToken();
+    }, []);
+    
+    useEffect(() => {
+        if(!token) return;
+        console.log('token state changed:', token);
+        // fetchCurrentUser();
+        fetchBusinesses();
+    }, [token]);
     
     // rehydrate your formData
-    const formData = {
-        email:       params.email,
-        phone:       params.phone,
-        password:    params.password,
-        offersServices: params.isProvider === 'true',
-        firstName:  params.firstName,
-        lastName:   params.lastName,
-    };
+    // const formData = {
+    //     email:       params.email,
+    //     phone:       params.phone,
+    //     password:    params.password,
+    //     offersServices: params.isProvider === 'true',
+    //     firstName:  params.firstName,
+    //     lastName:   params.lastName,
+    // };
 
     return(
         <ScrollView style={orgStyle.container}>
@@ -37,19 +89,15 @@ export default function Organizations(){
             <Text style={orgStyle.header}>My Businesses</Text>
             <Text style={orgStyle.selectOrg}>Select Business</Text>
 
-            {/* <BookingsOrganization
-                orgName="Business 1"
-                orgType="Business Type"
-                orgAddress="1234 Address Drive City, State, Country"
-                routerAddress="/signup/services/business-info"
-            />
-
-            <BookingsOrganization
-                orgName="Business2 2"
-                orgType="Business Type"
-                orgAddress="1234 Address Drive City, State, Country"
-                routerAddress="/signup/services/signup-business-info"
-            /> */}
+            {businesses.map((business) => (
+                <BookingsOrganization
+                    key={business._id}
+                    orgName={business.name}
+                    orgType={business.type}
+                    orgAddress={business.address}
+                    routerAddress="/signup/services/signup-business-info"
+                />
+            ))}
 
             <TouchableOpacity style={orgStyle.optionContainer} onPress={() => router.push('signup/services/signup-create-business')}>
                 <View style={orgStyle.contentContainer}>
@@ -59,7 +107,6 @@ export default function Organizations(){
                     <Ionicons name='chevron-forward' size={22} color="black" />
                 </View>
             </TouchableOpacity>
-            
         </ScrollView>
     )
 }
@@ -71,18 +118,17 @@ const orgStyle = StyleSheet.create({
         marginLeft: 15,
         color: '#333',
         fontWeight: 'bold',
-        // textDecorationLine: 'underline',
     },
-    addr:{
+    addr: {
         fontSize: 12,
         marginLeft: 10,
     },
-    advancedContainer:{
-        alignItems:'flex-end',
-    },
-    advanced:{
+    advanced: {
         fontSize: 16,
         color:'#5ED2AA',
+    },
+    advancedContainer:{
+        alignItems:'flex-end',
     },
     BookingsOrganization: {
         marginLeft: 20,
@@ -177,14 +223,11 @@ const orgStyle = StyleSheet.create({
         marginLeft: 5,
         color: '#333',
         fontWeight: 'bold',
-        // alignItems: 'flex-end',  
     },
     type: {
         fontSize: 12,
         marginTop: 2,
-        // marginLeft: -105,
         marginLeft: 10,
         color: '#333',
-    },
-
+    }
 })

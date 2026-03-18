@@ -1,4 +1,3 @@
-const { faMaximize } = require('@fortawesome/free-solid-svg-icons');
 const mongoose = require('mongoose');
 
 const serviceSchema = new mongoose.Schema(
@@ -23,13 +22,11 @@ const businessSchema = new mongoose.Schema(
 
         name: { type: String, required: true, trim: true },
         description: { type: String, trim: true },
-        type: { type: String, required: true, trim: true }, // "barbershop", "nails", etc.
-
+        type: { type: String, required: true, trim: true },
         address: { type: String, trim: true },
         city: { type: String, trim: true },
         phone: { type: String, trim: true },
         email: { type: String, trim: true, maxLength: 100 },
-
         services: { type: [serviceSchema], default: [] },
     },
     { timestamps: true }

@@ -3,6 +3,19 @@ const mongoose = require('mongoose');
 const Business = require('../models/Business');
 const User = require('../models/User');
 
+async function addService({ ownerId, businessId, service }) {
+    const b = await getMyBusinessById({ ownerId, businessId });
+    b.services.push({
+        name: service.name,
+        description: service.description,
+        priceCents: service.priceCents,
+        durationMins: service.durationMins,
+        isActive: service.isActive ?? true,
+    });
+    await b.save();
+    return b;
+}
+
 function assertObjectId(id, msg = 'Invalid id') {
     if (!mongoose.Types.ObjectId.isValid(id)) {
         const err = new Error(msg);
@@ -33,13 +46,20 @@ async function createBusiness({ ownerId, payload }) {
     return business;
 }
 
-async function listMyBusinesses({ ownerId, limit = 20, skip = 0, sort = '-createdAt' }) {
-    const q = { owner: ownerId };
-    const [items, total] = await Promise.all([
-        Business.find(q).sort(sort).skip(Number(skip)).limit(Number(limit)),
-        Business.countDocuments(q),
-    ]);
-    return { items, total };
+async function deleteService({ ownerId, businessId, serviceId }) {
+    assertObjectId(serviceId, 'Invalid service id');
+    const b = await getMyBusinessById({ ownerId, businessId });
+
+    const s = b.services.id(serviceId);
+    if (!s) {
+        const err = new Error('Service not found');
+        err.status = 404;
+        throw err;
+    }
+
+    s.deleteOne();
+    await b.save();
+    return b;
 }
 
 async function getMyBusinessById({ ownerId, businessId }) {
@@ -53,23 +73,18 @@ async function getMyBusinessById({ ownerId, businessId }) {
     return b;
 }
 
-async function addService({ ownerId, businessId, service }) {
-    const b = await getMyBusinessById({ ownerId, businessId });
-    b.services.push({
-        name: service.name,
-        description: service.description,
-        priceCents: service.priceCents,
-        durationMins: service.durationMins,
-        isActive: service.isActive ?? true,
-    });
-    await b.save();
-    return b;
+async function listMyBusinesses({ ownerId, limit = 20, skip = 0, sort = '-createdAt' }) {
+    const q = { owner: ownerId };
+    const [items, total] = await Promise.all([
+        Business.find(q).sort(sort).skip(Number(skip)).limit(Number(limit)),
+        Business.countDocuments(q),
+    ]);
+    return { items, total };
 }
 
 async function updateService({ ownerId, businessId, serviceId, patch }) {
     assertObjectId(serviceId, 'Invalid service id');
     const b = await getMyBusinessById({ ownerId, businessId });
-
     const s = b.services.id(serviceId);
     if (!s) {
         const err = new Error('Service not found');
@@ -87,21 +102,7 @@ async function updateService({ ownerId, businessId, serviceId, patch }) {
     return b;
 }
 
-async function deleteService({ ownerId, businessId, serviceId }) {
-    assertObjectId(serviceId, 'Invalid service id');
-    const b = await getMyBusinessById({ ownerId, businessId });
 
-    const s = b.services.id(serviceId);
-    if (!s) {
-        const err = new Error('Service not found');
-        err.status = 404;
-        throw err;
-    }
-
-    s.deleteOne();
-    await b.save();
-    return b;
-}
 
 module.exports = {
     createBusiness,

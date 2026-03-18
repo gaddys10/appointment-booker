@@ -20,10 +20,10 @@ const Services = () => {
 
         <View style={{ flex: 1, backgroundColor: '#E3FAEC' }}>
             <View style={styles.headerContainer}>
-                <TouchableOpacity style={styles.backArrow}  onPress={() => router.push('/signup/services/business-list')}>
+                <TouchableOpacity style={styles.backArrow}  onPress={() => router.push('/signup/services/signup-business-list')}>
                     <Ionicons name="chevron-back" size={28} color="black" />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => router.push('/signup/services/business-list')} style={styles.saveButton}>
+                <TouchableOpacity onPress={() => router.push('/signup/services/signup-business-list')} style={styles.saveButton}>
                     <Text style={{ fontSize: 16, marginLeft: 5 }}>Save</Text>
                     <Ionicons name="checkmark" size={16} color="black" />
                 </TouchableOpacity>

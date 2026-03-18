@@ -10,31 +10,24 @@ const pendingPwResets = new Map();
 
 router.post('/login', async (req, res) => { 
 
-    // extract email, phone, and password from request body
     const { email, phone, password } = req.body;
 
-    // validate that password and either email or phone is provided
     if (!password || (!email && !phone))
         return res.status(400).json({ error: 'Missing credentials' });
 
     // find the user by email or phone
     const query = email ? { email: email.toLowerCase().trim() } : { phone };
     const user = await User.findOne(query);
-
-    // Generic error to avoid account enumeration
     if (!user) return res.status(401).json({ error: 'Invalid credentials' });
 
     // compare the provided password with the stored hash
     const ok = await bcrypt.compare(password, user.passwordHash || '');
-
-    // Generic error to avoid account enumeration
     if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
 
-    // Generate JWT tokens
-    // Generate access token
+    // Generate access JWT token
     const access = signAccess({ uid: user._id, role: user.isProvider ? 'provider' : 'customer' });
 
-    // Generate refresh token
+    // Generate refresh JWTtoken
     const refresh = signRefresh({ uid: user._id, v: user.tokenVersion || 0 });
 
     // If you’re building a web app, you might set cookies.
@@ -56,58 +49,30 @@ router.post('/sign-up', async (req, res) => {
     const { email, phone, code} = req.body;
     console.log('➡️  POST /sign-up hit', { email, phone, code }); 
 
-    // pick identifier key based on info provided
     const id = email || phone;
-
-    // make client send bad request if neither email/phone is provided
-    if (!id){
-        return res.status(400).json({ error: 'Email or phone required' });
-    }
+    if (!id){ return res.status(400).json({ error: 'Email or phone required' });}
 
     // lookup pending verification
-    // This endpoint is "step 2" in the sign-up process
-    // Step 1 = /request-code saved formData + code to pendingVerifications
-    // Step 2 = /sign-up verifies code & actually creates user
     const pending = pendingVerifications.get(id);
-
-    // If pending is missing, either:
-    // - user never requested a code
-    // - server restarted and in-memory map was lost
-    // - code already used / deleted
     if (!pending) {
-        return res.status(400).json({
-            error: 'No verification request found for this user. Please request a new code.',
-        });
+        return res.status(400).json({ error: 'No verification request found for this user. Please request a new code.' });
     }
 
     // OTP should expire; if its old, delete it so it can't be re-used
     if (pending.expiresAt && pending.expiresAt < Date.now()) {
         pendingVerifications.delete(id);
-        return res.status(400).json({
-            error: 'Verification code has expired. Please request a new one.',
-        });
+        return res.status(400).json({ error: 'Verification code has expired. Please request a new one.' });
     }
 
-    // If OTP doesn't match, return error
-    // Don't delete pending entry on wrong code to allow retries
     if (pending.code !== code) {
-        return res.status(400).json({
-            error: 'Invalid verification code. Please try again.',
-        });
+        return res.status(400).json({ error: 'Invalid verification code. Please try again.' });
     }
 
     // NOT taking password/name/etc from req.body here
     // b/c we're creating user using exact data from pendingVerifications
     // when they requested the code (pending.formData))
     // -> prevents data tampering and inconsistent user data
-    const {
-        firstName,
-        lastName,
-        email: storedEmail,
-        phone: storedPhone,
-        password,
-        isProvider,
-    } = pending.formData;
+    const {firstName, lastName, email: storedEmail, phone: storedPhone, password, isProvider } = pending.formData;
 
     try {
         // ✅ Store only a hashed password in DB (never plaintext).
@@ -126,15 +91,6 @@ router.post('/sign-up', async (req, res) => {
 
         // ⬅ Create user in Mongo
         const createdUser = await User.create(userToCreate);
-
-        // ⬅️ build a JWT payload, keeping it small
-        // only what api needs for autho/role checks
-        // avoid packing w/ too much data. treat jwt as a proof, not profile. 
-        // const payload = {
-        //     userId: createdUser._id,
-        //     email: createdUser.email,
-        //     isProvider: createdUser.isProvider
-        // };
 
         // Centralize secret management in .env. in prod, always requre a real env seret
         const secret = process.env.JWT_SECRET || 'dev-secret-change-me';
@@ -198,12 +154,6 @@ router.post('/sign-up', async (req, res) => {
 
         console.log('✅ User created: ', userObject);
 
-        // make sure to match the response format of login
-        // res.status(200).json({
-        //     user: { id: user._id, email: user.email, isProvider: user.isProvider, firstName: user.firstName, lastName: user.lastName },
-        //     tokens: { access, refresh }
-        // });
-
         res.status(201).json({ 
             message: 'User created: ', 
             user: userObject,
@@ -220,18 +170,15 @@ router.post('/sign-up', async (req, res) => {
 router.post('/sign-up/request-code', (req, res) => {
     // get user information from the request body
     const { email, phone, password, isProvider, firstName, lastName } = req.body;
-
-    // check if email or phone is provided
     if (!email && !phone) return res.status(400).json({ error: 'Email or phone required' });
 
-    // get the user ID from email or phone
     const id = email || phone;
 
     // Generate a random 6-digit code
     const code = Math.floor(100000 + Math.random() * 900000).toString();
 
     // Store the code and user data in pendingVerifications
-    // with email or phone as the key
+    // with email/phone as the key
     pendingVerifications.set(id, {
         code,
         formData: { email, phone, password, isProvider, firstName, lastName },
@@ -243,7 +190,6 @@ router.post('/sign-up/request-code', (req, res) => {
 
     // the response that returns upon request 200 success
     res.status(200).json({ message: code });
-    // res.status(404).json({ error: 'request unsucessful' });
 });
 
 router.post('/forgot-password/reset-password', async (req, res) => {
@@ -313,8 +259,7 @@ router.post('/forgot-password/request-code', async (req, res) => {
     // if the user is found, proceed with password reset process
     if (found) {
         // Here you would generate a reset token and send an email
-        // For simplicity, we just log it
-
+        
         // Generate a random 6-digit code
         const code = Math.floor(100000 + Math.random() * 900000).toString();
 
