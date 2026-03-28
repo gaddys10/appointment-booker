@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, ScrollView} from 'react-native';
 import { CheckBox } from 'react-native-elements';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons'; // ✅ ADD THIS
 import { Dimensions } from 'react-native';
 import { useState } from 'react';
@@ -25,6 +25,8 @@ export default function EditService(){
 
     const router = useRouter(); // ✅ Create router object
 
+    const params = useLocalSearchParams();
+
     const handleSaveService = () => {
         const durationMinutes =
             (parseInt(hours || '0', 10) * 60) + parseInt(minutes || '0', 10);
@@ -38,9 +40,22 @@ export default function EditService(){
             daysAvailable: Object.keys(selectedDays).filter((day) => selectedDays[day]),
         };
 
+        let existingServices = [];
+
+        try {
+            existingServices = params.services ? JSON.parse(params.services) : [];
+        } catch (error) {
+            console.error('Error parsing existing services:', error);
+        }
+
         router.push({
             pathname: '/signup/services/signup-business-info',
             params: {
+                businessName: params.businessName || '',
+                address: params.address || '',
+                businessType: params.businessType || '',
+                description: params.description || '',
+                services: JSON.stringify([...existingServices, newService]),
                 newService: JSON.stringify(newService),
             },
         });

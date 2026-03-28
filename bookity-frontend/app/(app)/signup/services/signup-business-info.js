@@ -11,23 +11,33 @@ const Services = () => {
     
     const router = useRouter(); // ✅ Create router object
 
+    const [businessName, setBusinessName] = useState('');
+    const [address, setAddress] = useState('');
+    const [businessType, setBusinessType] = useState('');
+    const [description, setDescription] = useState('');
     const [services, setServices] = useState([]);
 
+
     useEffect(() => {
-        if (!params.newService) return;
+        if (typeof params.businessName === 'string') setBusinessName(params.businessName);
+        if (typeof params.address === 'string') setAddress(params.address);
+        if (typeof params.businessType === 'string') setBusinessType(params.businessType);
+        if (typeof params.description === 'string') setDescription(params.description);
 
-        try {
-            const parsedService = JSON.parse(params.newService);
-
-            setServices((prev) => {
-                const alreadyExists = prev.some((service) => service.id === parsedService.id);
-                if (alreadyExists) return prev;
-                return [...prev, parsedService];
-            });
-        } catch (err) {
-            console.error('Failed to parse newService:', err);
+        if (typeof params.services === 'string') {
+            try {
+                setServices(JSON.parse(params.services));
+            } catch (err) {
+                console.error('Failed to parse services:', err);
+            }
         }
-    }, [params.newService]);
+    }, [
+        params.businessName,
+        params.address,
+        params.businessType,
+        params.description,
+        params.services
+    ]);
 
     return (
 
@@ -50,25 +60,51 @@ const Services = () => {
                 </View>
 
                 <Text style={styles.selectOrg}>Business Name</Text>
-                <TextInput style={styles.box} placeholder='Enter Business Name..'></TextInput>
+                <TextInput 
+                    style={styles.box} 
+                    placeholder='Enter Business Name..' 
+                    value={businessName}
+                    onChangeText={setBusinessName}
+                />
                 
                 <Text style={styles.selectOrg}>Business Location</Text>
-                <TextInput style={styles.box} placeholder='Enter Business Address..'></TextInput>
+                <TextInput 
+                    style={styles.box} 
+                    placeholder='Enter Business Address..' 
+                    value={address}
+                    onChangeText={setAddress}
+                />
                 
                 <Text style={styles.selectOrg}>Business Type</Text>
-                <TextInput style={styles.box} placeholder='Enter Business Type..'></TextInput>
+                <TextInput 
+                    style={styles.box} 
+                    placeholder='Enter Business Type..' 
+                    value={businessType}
+                    onChangeText={setBusinessType}
+                />
 
                 <Text style={styles.selectOrg}>Business Description</Text>
                 <TextInput 
                     style={styles.dbox} 
                     placeholder='Enter Business Description..' 
                     multiline={true}
-                    >
+                    value={description}
+                    onChangeText={setDescription}
+                >
                 </TextInput>
 
                 <Text style={styles.secondTitle}>Business Services</Text>
                 {services.map((service) => (
-                    <TouchableOpacity key={service.id} style={styles.card} onPress={() => router.push('/signup/services/edit-service')}>
+                    <TouchableOpacity key={service.id} style={styles.card} onPress={() => router.push({
+                        pathname: '/signup/services/edit-service',
+                        params: {
+                            businessName,
+                            address,
+                            businessType,
+                            description,
+                            services: JSON.stringify(services)
+                        }
+                    })}>
                         <View>
                             <Text style={styles.name}>{service.name}</Text>
                             <Text style={styles.description}>{service.description}</Text>
@@ -81,7 +117,16 @@ const Services = () => {
                 ))}
                 <TouchableOpacity
                     style={styles.card}
-                    onPress={() => router.push('/signup/services/edit-service')}
+                    onPress={() => router.push({
+                        pathname: '/signup/services/edit-service',
+                        params: {
+                            businessName,
+                            address,
+                            businessType,
+                            description,
+                            services: JSON.stringify(services)
+                        },
+                    })}
                 >
                     <View>
                         <Text style={styles.name}>Add Service</Text>
