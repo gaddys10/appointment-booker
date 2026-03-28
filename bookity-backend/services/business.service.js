@@ -9,7 +9,7 @@ async function addService({ ownerId, businessId, service }) {
         name: service.name,
         description: service.description,
         priceCents: service.priceCents,
-        durationMins: service.durationMins,
+        durationMinutes: service.durationMinutes,
         isActive: service.isActive ?? true,
     });
     await b.save();

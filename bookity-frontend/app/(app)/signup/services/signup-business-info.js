@@ -1,29 +1,42 @@
-import React from 'react';
+import React, { useEffect, useState} from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; // ✅ ADD THIS
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Dimensions } from 'react-native';
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
 const Services = () => {
-    // Static list of business offerings
-    const services = [
-        { id: 1, name: 'Haircut', description: 'Professional haircut services.', price: 25 },
-        { id: 2, name: 'Massage Therapy', description: 'Relaxing massage therapy sessions.', price: 50 },
-        { id: 3, name: 'Manicure', description: 'Nail care and manicure services.', price: 20 },
-    ];
-
+    const params = useLocalSearchParams();
+    
     const router = useRouter(); // ✅ Create router object
+
+    const [services, setServices] = useState([]);
+
+    useEffect(() => {
+        if (!params.newService) return;
+
+        try {
+            const parsedService = JSON.parse(params.newService);
+
+            setServices((prev) => {
+                const alreadyExists = prev.some((service) => service.id === parsedService.id);
+                if (alreadyExists) return prev;
+                return [...prev, parsedService];
+            });
+        } catch (err) {
+            console.error('Failed to parse newService:', err);
+        }
+    }, [params.newService]);
 
     return (
 
         <View style={{ flex: 1, backgroundColor: '#E3FAEC' }}>
             <View style={styles.headerContainer}>
-                <TouchableOpacity style={styles.backArrow}  onPress={() => router.push('/signup/services/signup-business-list')}>
+                <TouchableOpacity style={styles.backArrow}  onPress={() => router.push('/signup/services/signupBusinessList')}>
                     <Ionicons name="chevron-back" size={28} color="black" />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => router.push('/signup/services/signup-business-list')} style={styles.saveButton}>
+                <TouchableOpacity onPress={() => router.push('/signup/services/signupBusinessList')} style={styles.saveButton}>
                     <Text style={{ fontSize: 16, marginLeft: 5 }}>Save</Text>
                     <Ionicons name="checkmark" size={16} color="black" />
                 </TouchableOpacity>
@@ -66,6 +79,17 @@ const Services = () => {
                         </View>
                     </TouchableOpacity>
                 ))}
+                <TouchableOpacity
+                    style={styles.card}
+                    onPress={() => router.push('/signup/services/edit-service')}
+                >
+                    <View>
+                        <Text style={styles.name}>Add Service</Text>
+                    </View>
+                    <View style={styles.selectButton}>
+                        <Ionicons name='pencil' size={24} color="black" />
+                    </View>
+                </TouchableOpacity>
                 {/* <TouchableOpacity key={service.id} style={styles.card} onPress={() => router.push('/signup/services/edit-service')}>
                     <View>
                         <Text style={styles.name}>${service.name}</Text>
@@ -242,7 +266,7 @@ const styles = StyleSheet.create({
     box: {
 
         height: 40,
-        width:350,
+        width: 350,
         borderWidth: 1,
         borderColor: '#ccc',
         borderRadius: 12,

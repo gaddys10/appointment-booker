@@ -97,11 +97,12 @@ const Services = () => {
                 </TextInput>
 
                 <Text style={styles.secondTitle}>Business Services</Text>
-                <TouchableOpacity  style={styles.card} onPress={() => setServices([...services, {name: 'New Service', description: '', price: 0, durationMinutes: 60}])}>
+                <TouchableOpacity
+                    style={styles.card}
+                    onPress={() => router.push('/signup/services/edit-service')}
+                >                    
                     <View>
                         <Text style={styles.name}>Add Service</Text>
-                        {/* <Text style={styles.description}></Text> */}
-                        {/* <Text style={styles.price}>Price: $</Text> */}
                     </View>
                     <View style={styles.selectButton}  onPress={() => router.back()}>
                         <Ionicons name='pencil' size={24} color="black" />

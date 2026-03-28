@@ -1,4 +1,3 @@
-import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, ScrollView} from 'react-native';
 import { CheckBox } from 'react-native-elements';
 import { useRouter } from 'expo-router';
@@ -9,8 +8,43 @@ const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
 export default function EditService(){
-    const [isSelected, setSelection] = useState(false);
+    const [serviceName, setServiceName] = useState('');
+    const [hours, setHours] = useState('');
+    const [minutes, setMinutes] = useState('');
+    const [price, setPrice] = useState('');
+    const [description, setDescription] = useState('');
+    const [selectedDays, setSelectedDays] = useState({
+        sunday: false,
+        monday: false,
+        tuesday: false,
+        wednesday: false,
+        thursday: false,
+        friday: false,
+        saturday: false,
+    });
+
     const router = useRouter(); // ✅ Create router object
+
+    const handleSaveService = () => {
+        const durationMinutes =
+            (parseInt(hours || '0', 10) * 60) + parseInt(minutes || '0', 10);
+
+        const newService = {
+            id: Date.now().toString(),
+            name: serviceName || 'New Service',
+            description: description || '',
+            price: Number(price || 0),
+            durationMinutes: durationMinutes || 60,
+            daysAvailable: Object.keys(selectedDays).filter((day) => selectedDays[day]),
+        };
+
+        router.push({
+            pathname: '/signup/services/signup-business-info',
+            params: {
+                newService: JSON.stringify(newService),
+            },
+        });
+    };
 
     return(
         <View style={{ flex: 1, backgroundColor: '#E3FAEC' }}>
@@ -18,7 +52,7 @@ export default function EditService(){
                 <TouchableOpacity style={styles.backArrow}  onPress={() => router.back()}>
                     <Ionicons name="chevron-back" size={28} color="black" />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => router.push('/signup/services/business-info')} style={styles.saveButton}>
+                <TouchableOpacity onPress={handleSaveService} style={styles.saveButton}>
                     <Text style={{ fontSize: 16, marginLeft: 5 }}>Save</Text>
                     <Ionicons name="checkmark" size={16} color="black" />
                 </TouchableOpacity>
@@ -29,64 +63,66 @@ export default function EditService(){
                 <Text style={styles.header}>My Services</Text>
 
                 <Text style={styles.subheader}>Service Name</Text>
-                <TextInput style={styles.textBox} placeholder='Entr name of service...'></TextInput>
+                <TextInput style={styles.textBox} placeholder='Enter name of service...' value={serviceName} onChangeText={setServiceName}></TextInput>
 
                 <Text style={styles.subheader}>Service length</Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1, justifyContent: 'flex-start' }}>
-                    <TextInput style={styles.lengthBox} placeholder='hours'></TextInput>
-                    <TextInput style={styles.lengthBox} placeholder='minutes'></TextInput>
+                    <TextInput style={styles.lengthBox} placeholder='hours' keyboardType="numeric" value={hours} onChangeText={setHours}></TextInput>
+                    <TextInput style={styles.lengthBox} placeholder='minutes' value={minutes} keyboardType="numeric" onChangeText={setMinutes}></TextInput>
                 </View>
 
 
                 <Text style={styles.subheader}>Service Price</Text>
-                <TextInput style={styles.textBox} placeholder='Enter price of service...'></TextInput>
+                <TextInput style={styles.textBox} placeholder='Enter price of service...' value={price} keyboardType="numeric" onChangeText={setPrice}></TextInput>
 
+                <Text style={styles.subheader}>Service Description</Text>
+                <TextInput style={styles.bigtextBox} multiline={true} placeholder='Enter a detailed description of this service...' value={description} onChangeText={setDescription}></TextInput>
                 <Text style={styles.subheader}> Days Available  </Text>
-                <View style={{ flexDirection: 'column', alignItems: 'left', gap: 3, flex: 1, paddingTop: 5, justifyContent: 'flex-start' }}>
+                <View style={{ flexDirection: 'column', gap: 3, flex: 1, paddingTop: 5, justifyContent: 'flex-start' }}>
                     <CheckBox
                         title="Sunday" 
-                        checked={isSelected}
-                        onPress={() => setSelection(!isSelected)}
+                        checked={selectedDays.sunday}
+                        onPress={() => setSelectedDays({...selectedDays, sunday: !selectedDays.sunday})}
+                        style={styles.checkbox}
+                    />
+                    <CheckBox
+                        title="Monday"
+                        checked={selectedDays.monday}
+                        onPress={() => setSelectedDays({...selectedDays, monday: !selectedDays.monday})}
                         style={styles.checkbox}
                     />
                     <CheckBox
                         title="Tuesday"
-                        checked={isSelected}
-                        onPress={() => setSelection(!isSelected)}
+                        checked={selectedDays.tuesday}
+                        onPress={() => setSelectedDays({...selectedDays, tuesday: !selectedDays.tuesday})}
                         style={styles.checkbox}
                     />
                     <CheckBox
                         title="Wednesday"
-                        checked={isSelected}
-                        onPress={() => setSelection(!isSelected)}
+                        checked={selectedDays.wednesday}
+                        onPress={() => setSelectedDays({...selectedDays, wednesday: !selectedDays.wednesday})}
                         style={styles.checkbox}
                     />
                     <CheckBox
                         title="Thursday"
-                        checked={isSelected}
-                        onPress={() => setSelection(!isSelected)}
+                        checked={selectedDays.thursday}
+                        onPress={() => setSelectedDays({...selectedDays, thursday: !selectedDays.thursday})}
                         style={styles.checkbox}
                     />
                     <CheckBox
                         title="Friday"
-                        checked={isSelected}
-                        onPress={() => setSelection(!isSelected)}
+                        checked={selectedDays.friday}
+                        onPress={() => setSelectedDays({...selectedDays, friday: !selectedDays.friday})}
                         style={styles.checkbox}
                     />
                     <CheckBox
                         title="Saturday"
-                        checked={isSelected}
-                        onPress={() => setSelection(!isSelected)}
+                        checked={selectedDays.saturday}
+                        onPress={() => setSelectedDays({...selectedDays, saturday: !selectedDays.saturday})}
                         style={styles.checkbox}
                     />
                 </View>
-
-                <Text style={styles.subheader}>Service Price</Text>
-                <TextInput style={styles.textBox} placeholder='Enter price of service...'></TextInput>
-                <Text style={styles.subheader}>Service Description</Text>
-                <TextInput style={styles.bigtextBox} multiline={true} placeholder='Enter a detailed description of this service...'></TextInput>
                 
-            
             </ScrollView>
         </View>
     )}
