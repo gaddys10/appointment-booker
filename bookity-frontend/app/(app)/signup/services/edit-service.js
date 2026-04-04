@@ -27,6 +27,14 @@ export default function EditService(){
 
     const params = useLocalSearchParams();
 
+    const businessData = {
+        businessName: params.businessName || '',
+        address: params.address || '',
+        businessType: params.businessType || '',
+        description: params.description || '',
+        services: params.services ? JSON.parse(params.services) : [],
+    };
+
     const handleSaveService = () => {
         const durationMinutes =
             (parseInt(hours || '0', 10) * 60) + parseInt(minutes || '0', 10);
@@ -51,10 +59,10 @@ export default function EditService(){
         router.push({
             pathname: '/signup/services/signup-business-info',
             params: {
-                businessName: params.businessName || '',
-                address: params.address || '',
-                businessType: params.businessType || '',
-                description: params.description || '',
+                businessName: businessData.businessName,
+                address: businessData.address,
+                businessType: businessData.businessType,
+                description: businessData.description,
                 services: JSON.stringify([...existingServices, newService]),
                 newService: JSON.stringify(newService),
             },
