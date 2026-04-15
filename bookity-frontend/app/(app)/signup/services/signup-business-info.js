@@ -108,7 +108,15 @@ const Services = () => {
                         <View>
                             <Text style={styles.name}>{service.name}</Text>
                             <Text style={styles.description}>{service.description}</Text>
-                            <Text style={styles.price}>Price: ${service.price}</Text>
+                            <View style={styles.priceRow}>
+                                <Text style={styles.price}>Price: ${service.price}</Text>
+                                <Text style={styles.duration}>Duration: {service.durationMinutes} min</Text>
+                            </View>
+                            <Text style={styles.availability}>Available: {service.daysAvailable
+                                .map((day) => day.slice(0, 3))
+                                .map((abbr) => abbr.charAt(0).toUpperCase() + abbr.slice(1))
+                                .join(', ')}
+                            </Text>
                         </View>
                         <View style={styles.selectButton}  onPress={() => router.back()}>
                             <Ionicons name='pencil' size={24} color="black" />
@@ -222,101 +230,17 @@ const Services = () => {
 };
 
 const styles = StyleSheet.create({
+    availability: {
+        marginTop: 15,
+    },
+    
     backArrow: {
         marginBottom: 10,
         marginLeft: -5
     },
-    headerContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 10,
-        paddingHorizontal: 10,
-        paddingTop: 10,
-        height: 50,
-    },
-    saveButton: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        backgroundColor: 'green',
-        padding: 10,
-        borderRadius: 10,
-        marginVertical: 20,
-        width: screenWidth - 300,
-        height: 40,
-    },
-    photoContainer: {
-        flexDirection: 'row',
-        marginBottom: 25,
-        alignItems: 'center',
-        alignContent: 'center',
-    },
-    daytext: {
-        fontSize: 16,
-        marginTop: -12,
-        marginHorizontal: 5
-    },
-    title: {
-        fontSize: 24,
-        marginBottom: 10,
-    },
-    dayContainer: {
-        flexDirection: 'row',
-        // justifyContent: 'space-between',
-        justifyContent: 'flex-end', // 👈 new: push content to the right
-        alignItems: 'center',       // 👈 new: vertically align everything nicely
-        marginBottom: 5,
-        gap: 6,                     // 👈 optional: add some spacing between elements
-    },
-    secondTitle: {
-        fontSize: 24,
-        marginTop: 20,
-        marginBottom: 20,
-    },
-    photoText: {
-        fontSize: 16,
-        marginBottom: 40,
-        marginTop: 30,
-        marginLeft: 30,
-        textDecorationLine: 'underline',
-    },
-    container: {
-        flex: 1,
-        padding: 16,
-        backgroundColor: '#E3FAEC',
-    },
-    hours: {
-        height: 40,
-        width: 100,
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 12,
-        paddingLeft: 10,
-        backgroundColor: '#fff',
-        marginBottom: 10,
-        fontSize: 16,
-        fontWeight: 'bold',
-        marginBottom: 16,
-    },
     box: {
-
         height: 40,
         width: 350,
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 12,
-        paddingLeft: 10,
-        backgroundColor: '#fff',
-        marginBottom: 10,
-        fontSize: 16,
-        fontWeight: 'bold',
-        marginBottom: 16,
-        marginTop: 5
-    },
-    dbox: {
-
-        height: 120,
-        width:350,
         borderWidth: 1,
         borderColor: '#ccc',
         borderRadius: 12,
@@ -341,20 +265,116 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
     },
-    name: {
-        fontSize: 18,
+    container: {
+        flex: 1,
+        padding: 16,
+        backgroundColor: '#E3FAEC',
+    },
+    dayContainer: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end', // 👈 new: push content to the right
+        alignItems: 'center',       // 👈 new: vertically align everything nicely
+        marginBottom: 5,
+        gap: 6,                     // 👈 optional: add some spacing between elements
+    },
+    daytext: {
+        fontSize: 16,
+        marginTop: -12,
+        marginHorizontal: 5
+    },
+    dbox: {
+        height: 120,
+        width:350,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 12,
+        paddingLeft: 10,
+        backgroundColor: '#fff',
+        marginBottom: 10,
+        fontSize: 16,
         fontWeight: 'bold',
-        marginBottom: 8,
+        marginBottom: 16,
+        marginTop: 5
     },
     description: {
         fontSize: 14,
         color: '#555',
         marginBottom: 8,
     },
+    duration: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#333',
+    },
+    headerContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 10,
+        paddingHorizontal: 10,
+        paddingTop: 10,
+        height: 50,
+    },
+    hours: {
+        height: 40,
+        width: 100,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 12,
+        paddingLeft: 10,
+        backgroundColor: '#fff',
+        marginBottom: 10,
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 16,
+    },
+    name: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 8,
+    },
+    photoContainer: {
+        flexDirection: 'row',
+        marginBottom: 25,
+        alignItems: 'center',
+        alignContent: 'center',
+    },
+    photoText: {
+        fontSize: 16,
+        marginBottom: 40,
+        marginTop: 30,
+        marginLeft: 30,
+        textDecorationLine: 'underline',
+    },
     price: {
         fontSize: 16,
         fontWeight: 'bold',
         color: '#333',
+    },
+    priceRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 4,
+    },
+    saveButton: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        backgroundColor: 'green',
+        padding: 10,
+        borderRadius: 10,
+        marginVertical: 20,
+        width: screenWidth - 300,
+        height: 40,
+    },
+    secondTitle: {
+        fontSize: 24,
+        marginTop: 20,
+        marginBottom: 20,
+    },
+    title: {
+        fontSize: 24,
+        marginBottom: 10,
     },
 });
 

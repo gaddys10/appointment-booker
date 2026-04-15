@@ -115,6 +115,7 @@ const Services = () => {
                             <Text style={styles.name}>{service.name}</Text>
                             <Text style={styles.description}>{service.description}</Text>
                             <Text style={styles.price}>Price: ${service.price}</Text>
+                            <Text style={styles.price}>Duration: {service.durationMinutes} minutes</Text>
                         </View>
                         <View style={styles.selectButton}  onPress={() => router.back()}>
                             <Ionicons name='pencil' size={24} color="black" />

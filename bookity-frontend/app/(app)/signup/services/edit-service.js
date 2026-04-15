@@ -27,13 +27,37 @@ export default function EditService(){
 
     const params = useLocalSearchParams();
 
+    let parsedServices = [];
+
+    try {
+        parsedServices = typeof params.services === 'string'
+            ? JSON.parse(params.services)
+            : [];
+    } catch (error) {
+        console.error('Error parsing params.services:', error);
+        parsedServices = [];
+    }
+
     const businessData = {
-        businessName: params.businessName || '',
-        address: params.address || '',
-        businessType: params.businessType || '',
-        description: params.description || '',
-        services: params.services ? JSON.parse(params.services) : [],
+        businessName: typeof params.businessName === 'string' ? params.businessName : '',
+        address: typeof params.address === 'string' ? params.address : '',
+        businessType: typeof params.businessType === 'string' ? params.businessType : '',
+        description: typeof params.description === 'string' ? params.description : '',
+        services: parsedServices,
     };
+
+    const handleCancelService = () => {
+        router.push({
+            pathname: '/signup/services/signup-business-info',
+            params: {
+                businessName: businessData.businessName,
+                address: businessData.address,
+                businessType: businessData.businessType,
+                description: businessData.description,
+                services: businessData.services ? businessData.services : JSON.stringify(businessData.services)
+            },
+        });
+    }
 
     const handleSaveService = () => {
         const durationMinutes =
